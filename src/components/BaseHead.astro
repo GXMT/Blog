@@ -113,37 +113,14 @@ const jsonLd =
 <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
 
 <!--
-  애드센스 지연 로딩:
-  - adsbygoogle.js를 <head>에서 즉시 로드하지 않고 브라우저가 유휴 상태일 때 로드
-  - LCP/TBT 영향을 줄이면서도 과도하게 미루지 않도록 timeout 3s 상한
-  - ADSENSE_CLIENT가 비어 있으면 아무것도 하지 않음
+  Google AdSense (Auto Ads + 승인 심사용).
+  AdSense 크롤러가 감지할 수 있도록 표준 async 스니펫을 head에 그대로 삽입.
+  async라 렌더를 막지 않습니다. ADSENSE_CLIENT가 비어 있으면 미삽입.
 -->
 {ADSENSE_CLIENT && (
-  <script is:inline define:vars={{ client: ADSENSE_CLIENT }}>
-    (function () {
-      let loaded = false;
-      function loadAds() {
-        if (loaded) return;
-        loaded = true;
-        const s = document.createElement('script');
-        s.async = true;
-        s.src =
-          'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
-          client;
-        s.crossOrigin = 'anonymous';
-        s.onload = function () {
-          document.querySelectorAll('ins.adsbygoogle').forEach(function (el) {
-            if (el.getAttribute('data-adsbygoogle-status')) return;
-            (window.adsbygoogle = window.adsbygoogle || []).push({});
-          });
-        };
-        document.head.appendChild(s);
-      }
-      if ('requestIdleCallback' in window) {
-        requestIdleCallback(loadAds, { timeout: 3000 });
-      } else {
-        setTimeout(loadAds, 2000);
-      }
-    })();
-  </script>
+  <script
+    async
+    src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${ADSENSE_CLIENT}`}
+    crossorigin="anonymous"
+  ></script>
 )}

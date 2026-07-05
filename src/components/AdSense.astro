@@ -16,10 +16,13 @@ interface Props {
 }
 
 const { slot, format = 'auto', minHeight = 280, label = true } = Astro.props;
+
+// 실제 슬롯 ID가 있을 때만 렌더 (예시값 '0000000000'은 무시)
+const showAd = ADSENSE_CLIENT && slot && slot !== '0000000000';
 ---
 
 {
-  ADSENSE_CLIENT && (
+  showAd && (
     <aside class="ad" style={`min-height:${minHeight}px`} aria-label="광고">
       {label && <span class="ad__label">광고</span>}
       <ins
@@ -30,6 +33,9 @@ const { slot, format = 'auto', minHeight = 280, label = true } = Astro.props;
         data-ad-format={format}
         data-full-width-responsive="true"
       />
+      <script is:inline>
+        (adsbygoogle = window.adsbygoogle || []).push({});
+      </script>
     </aside>
   )
 }
