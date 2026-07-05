@@ -1,0 +1,48 @@
+media:
+  input: public/images
+  output: /images
+
+content:
+  - name: posts
+    label: 블로그 글
+    type: collection
+    path: src/content/blog
+    filename: '{fields.title}.md'
+    view:
+      fields: [title, pubDate, draft]
+      primary: title
+      sort: [pubDate, title]
+      default:
+        sort: pubDate
+        order: desc
+    fields:
+      - { name: title, label: 제목, type: string, required: true }
+      - {
+          name: description,
+          label: 요약 (검색결과·공유 미리보기에 표시),
+          type: text,
+          required: true,
+        }
+      - {
+          name: pubDate,
+          label: 발행일,
+          type: date,
+          options: { format: yyyy-MM-dd },
+          required: true,
+        }
+      - {
+          name: updatedDate,
+          label: 수정일 (선택),
+          type: date,
+          options: { format: yyyy-MM-dd },
+        }
+      - { name: heroImage, label: 대표 이미지 (선택), type: image }
+      - { name: heroAlt, label: 대표 이미지 대체텍스트 (선택), type: string }
+      - { name: tags, label: 태그, type: string, list: true }
+      - {
+          name: draft,
+          label: 임시저장 (체크 시 사이트에 노출 안 됨),
+          type: boolean,
+          default: false,
+        }
+      - { name: body, label: 본문, type: rich-text }
