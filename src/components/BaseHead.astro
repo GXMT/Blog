@@ -1,0 +1,149 @@
+---
+import {
+  SITE_TITLE,
+  SITE_URL,
+  AUTHOR,
+  LOCALE,
+  ADSENSE_CLIENT,
+  NAVER_SITE_VERIFICATION,
+  GOOGLE_SITE_VERIFICATION,
+} from '../consts.mjs';
+
+interface Props {
+  title: string;
+  description: string;
+  /** OG 이미지 절대/상대 경로 (선택) */
+  image?: string;
+  /** 'website' | 'article' */
+  type?: 'website' | 'article';
+  publishedTime?: Date;
+  modifiedTime?: Date;
+  tags?: string[];
+}
+
+const {
+  title,
+  description,
+  image = '/og-default.png',
+  type = 'website',
+  publishedTime,
+  modifiedTime,
+  tags = [],
+} = Astro.props;
+
+const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? SITE_URL);
+const imageURL = new URL(image, Astro.site ?? SITE_URL);
+
+// 구조화 데이터: 글이면 BlogPosting, 그 외 WebSite
+const jsonLd =
+  type === 'article'
+    ? {
+        '@context': 'https://schema.org',
+        '@type': 'BlogPosting',
+        headline: title,
+        description,
+        image: imageURL.toString(),
+        author: { '@type': 'Person', name: AUTHOR },
+        publisher: { '@type': 'Organization', name: SITE_TITLE },
+        datePublished: publishedTime?.toISOString(),
+        dateModified: (modifiedTime ?? publishedTime)?.toISOString(),
+        mainEntityOfPage: { '@type': 'WebPage', '@id': canonicalURL.toString() },
+        keywords: tags.join(', '),
+      }
+    : {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        name: SITE_TITLE,
+        url: SITE_URL,
+      };
+---
+
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+<meta name="generator" content={Astro.generator} />
+
+<!-- Canonical -->
+<link rel="canonical" href={canonicalURL} />
+
+<!-- Primary Meta -->
+<title>{title}</title>
+<meta name="title" content={title} />
+<meta name="description" content={description} />
+<meta name="author" content={AUTHOR} />
+
+<!-- 검색엔진 소유확인 (값이 있을 때만) -->
+{GOOGLE_SITE_VERIFICATION && (
+  <meta name="google-site-verification" content={GOOGLE_SITE_VERIFICATION} />
+)}
+{NAVER_SITE_VERIFICATION && (
+  <meta name="naver-site-verification" content={NAVER_SITE_VERIFICATION} />
+)}
+
+<!-- Open Graph (카카오톡/네이버/페이스북 공유 미리보기의 핵심) -->
+<meta property="og:type" content={type} />
+<meta property="og:url" content={canonicalURL} />
+<meta property="og:title" content={title} />
+<meta property="og:description" content={description} />
+<meta property="og:image" content={imageURL} />
+<meta property="og:site_name" content={SITE_TITLE} />
+<meta property="og:locale" content={LOCALE} />
+{publishedTime && (
+  <meta property="article:published_time" content={publishedTime.toISOString()} />
+)}
+{modifiedTime && (
+  <meta property="article:modified_time" content={modifiedTime.toISOString()} />
+)}
+
+<!-- Twitter -->
+<meta name="twitter:card" content="summary_large_image" />
+<meta name="twitter:title" content={title} />
+<meta name="twitter:description" content={description} />
+<meta name="twitter:image" content={imageURL} />
+
+<!-- RSS 자동발견 -->
+<link
+  rel="alternate"
+  type="application/rss+xml"
+  title={SITE_TITLE}
+  href={new URL('rss.xml', Astro.site ?? SITE_URL)}
+/>
+
+<!-- 구조화 데이터 -->
+<script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+
+<!--
+  애드센스 지연 로딩:
+  - adsbygoogle.js를 <head>에서 즉시 로드하지 않고 브라우저가 유휴 상태일 때 로드
+  - LCP/TBT 영향을 줄이면서도 과도하게 미루지 않도록 timeout 3s 상한
+  - ADSENSE_CLIENT가 비어 있으면 아무것도 하지 않음
+-->
+{ADSENSE_CLIENT && (
+  <script is:inline define:vars={{ client: ADSENSE_CLIENT }}>
+    (function () {
+      let loaded = false;
+      function loadAds() {
+        if (loaded) return;
+        loaded = true;
+        const s = document.createElement('script');
+        s.async = true;
+        s.src =
+          'https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=' +
+          client;
+        s.crossOrigin = 'anonymous';
+        s.onload = function () {
+          document.querySelectorAll('ins.adsbygoogle').forEach(function (el) {
+            if (el.getAttribute('data-adsbygoogle-status')) return;
+            (window.adsbygoogle = window.adsbygoogle || []).push({});
+          });
+        };
+        document.head.appendChild(s);
+      }
+      if ('requestIdleCallback' in window) {
+        requestIdleCallback(loadAds, { timeout: 3000 });
+      } else {
+        setTimeout(loadAds, 2000);
+      }
+    })();
+  </script>
+)}

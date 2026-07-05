@@ -1,0 +1,26 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import { SITE_TITLE, AUTHOR } from '../consts.mjs';
+import '../styles/global.css';
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <BaseHead title={`소개 · ${SITE_TITLE}`} description={`${AUTHOR} 소개`} />
+  </head>
+  <body>
+    <div class="container">
+      <Header />
+      <main>
+        <div class="prose">
+          <h1>소개</h1>
+          <p>안녕하세요, {AUTHOR}입니다. 이 페이지를 자유롭게 수정하세요.</p>
+        </div>
+      </main>
+      <Footer />
+    </div>
+  </body>
+</html>

@@ -1,0 +1,47 @@
+---
+import { SITE_TITLE } from '../consts.mjs';
+const path = Astro.url.pathname;
+const isActive = (href: string) =>
+  href === '/' ? path === '/' : path.startsWith(href);
+---
+
+<header class="site-header">
+  <a href="/" class="brand">{SITE_TITLE}</a>
+  <nav>
+    <a href="/" class:list={[{ active: isActive('/') }]}>홈</a>
+    <a href="/blog" class:list={[{ active: isActive('/blog') }]}>글</a>
+    <a href="/about" class:list={[{ active: isActive('/about') }]}>소개</a>
+    <a href="/rss.xml">RSS</a>
+  </nav>
+</header>
+
+<style>
+  .site-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem 1rem;
+    padding: 1rem 0;
+    border-bottom: 1px solid var(--border, #e5e5e5);
+    margin-bottom: 2rem;
+  }
+  .brand {
+    font-weight: 700;
+    font-size: 1.2rem;
+    text-decoration: none;
+    color: var(--fg, #111);
+  }
+  nav {
+    display: flex;
+    gap: 1rem;
+  }
+  nav a {
+    text-decoration: none;
+    color: var(--muted, #666);
+  }
+  nav a.active {
+    color: var(--accent, #2563eb);
+    font-weight: 600;
+  }
+</style>

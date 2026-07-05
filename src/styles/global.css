@@ -1,0 +1,91 @@
+:root {
+  --fg: #18181b;
+  --muted: #6b7280;
+  --border: #e5e7eb;
+  --surface: #f4f4f5;
+  --accent: #2563eb;
+  --bg: #ffffff;
+  --max-width: 720px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --fg: #e5e7eb;
+    --muted: #9ca3af;
+    --border: #27272a;
+    --surface: #18181b;
+    --accent: #60a5fa;
+    --bg: #0b0b0d;
+  }
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font-family:
+    'Pretendard', system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic',
+    sans-serif;
+  line-height: 1.7;
+  font-size: 17px;
+}
+
+.container {
+  max-width: var(--max-width);
+  margin: 0 auto;
+  padding: 0 1.25rem 2rem;
+}
+
+a {
+  color: var(--accent);
+}
+
+img {
+  max-width: 100%;
+  height: auto;
+}
+
+/* 본문 타이포그래피 */
+.prose h2 {
+  margin-top: 2.5rem;
+  line-height: 1.3;
+}
+.prose h3 {
+  margin-top: 2rem;
+}
+.prose p,
+.prose ul,
+.prose ol {
+  margin: 1rem 0;
+}
+.prose pre {
+  background: var(--surface);
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-x: auto;
+  font-size: 0.9em;
+}
+.prose code {
+  background: var(--surface);
+  padding: 0.15em 0.4em;
+  border-radius: 4px;
+  font-size: 0.9em;
+}
+.prose pre code {
+  background: none;
+  padding: 0;
+}
+.prose blockquote {
+  border-left: 3px solid var(--accent);
+  margin: 1.5rem 0;
+  padding: 0.25rem 0 0.25rem 1rem;
+  color: var(--muted);
+}

@@ -1,0 +1,23 @@
+---
+import { SITE_TITLE, AUTHOR } from '../consts.mjs';
+const year = new Date().getFullYear();
+---
+
+<footer class="site-footer">
+  <p>© {year} {SITE_TITLE} · {AUTHOR}</p>
+  <p><a href="/rss.xml">RSS</a> · <a href="/sitemap-index.xml">Sitemap</a></p>
+</footer>
+
+<style>
+  .site-footer {
+    margin-top: 4rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--border, #e5e5e5);
+    color: var(--muted, #666);
+    font-size: 0.9rem;
+    text-align: center;
+  }
+  .site-footer a {
+    color: var(--muted, #666);
+  }
+</style>

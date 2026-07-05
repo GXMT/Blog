@@ -1,0 +1,59 @@
+---
+import { ADSENSE_CLIENT } from '../consts.mjs';
+
+interface Props {
+  /** 애드센스 광고 단위 슬롯 ID */
+  slot: string;
+  /** 광고 포맷: 'auto'(반응형) | 'fluid' | 'rectangle' 등 */
+  format?: string;
+  /**
+   * 미리 확보할 최소 높이(px). CLS 방지의 핵심.
+   * 광고가 로드되기 전에도 이 높이만큼 자리를 잡아 본문이 밀리지 않습니다.
+   */
+  minHeight?: number;
+  /** 라벨 표시 여부 (정책상 '광고' 표기 권장) */
+  label?: boolean;
+}
+
+const { slot, format = 'auto', minHeight = 280, label = true } = Astro.props;
+---
+
+{
+  ADSENSE_CLIENT && (
+    <aside class="ad" style={`min-height:${minHeight}px`} aria-label="광고">
+      {label && <span class="ad__label">광고</span>}
+      <ins
+        class="adsbygoogle"
+        style="display:block"
+        data-ad-client={ADSENSE_CLIENT}
+        data-ad-slot={slot}
+        data-ad-format={format}
+        data-full-width-responsive="true"
+      />
+    </aside>
+  )
+}
+
+<style>
+  /* 광고 자리를 고정 확보 → 로드 전/후 레이아웃 변화 0 지향 */
+  .ad {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    margin: 2rem 0;
+    overflow: hidden;
+    background: var(--surface, #f4f4f5);
+    border-radius: 8px;
+  }
+  .ad__label {
+    align-self: flex-start;
+    font-size: 0.7rem;
+    color: var(--muted, #999);
+    padding: 4px 8px;
+  }
+  .ad .adsbygoogle {
+    width: 100%;
+  }
+</style>
