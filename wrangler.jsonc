@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "blog",
+  "compatibility_date": "2025-06-01",
+  // Worker 스크립트 없이 dist/ 정적 파일만 서빙 (순수 정적 블로그)
+  "assets": {
+    "directory": "./dist"
+  }
+}
