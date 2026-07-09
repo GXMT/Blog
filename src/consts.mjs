@@ -5,9 +5,9 @@
 /** 실제 배포 도메인 (끝에 슬래시 X). sitemap/RSS/canonical/OG에 사용 */
 export const SITE_URL = 'https://xpfarms.com';
 
-export const SITE_TITLE = '내 블로그';
+export const SITE_TITLE = 'XPFARMS';
 export const SITE_DESCRIPTION = '개발·일상·리뷰를 기록하는 블로그입니다.';
-export const AUTHOR = '홍길동';
+export const AUTHOR = 'XPFARMS';
 export const LOCALE = 'ko_KR';
 
 /**
