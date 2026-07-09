@@ -6,7 +6,7 @@
 export const SITE_URL = 'https://xpfarms.com';
 
 export const SITE_TITLE = 'XPFARMS';
-export const SITE_DESCRIPTION = '개발·일상·리뷰를 기록하는 블로그입니다.';
+export const SITE_DESCRIPTION = '정부 지원금과 세금·절세 정보를 공식 자료 기준으로 정리해 전달하는 블로그입니다.';
 export const AUTHOR = 'XPFARMS';
 export const LOCALE = 'ko_KR';
 

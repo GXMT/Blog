@@ -2,14 +2,17 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import { SITE_TITLE, AUTHOR } from '../consts.mjs';
+import { SITE_TITLE } from '../consts.mjs';
 import '../styles/global.css';
 ---
 
 <!doctype html>
 <html lang="ko">
   <head>
-    <BaseHead title={`소개 · ${SITE_TITLE}`} description={`${AUTHOR} 소개`} />
+    <BaseHead
+      title={`소개 · ${SITE_TITLE}`}
+      description={`${SITE_TITLE}은 정부 지원금과 세금·절세 정보를 공식 자료 기준으로 정리해 전달하는 블로그입니다.`}
+    />
   </head>
   <body>
     <div class="container">
@@ -17,7 +20,19 @@ import '../styles/global.css';
       <main>
         <div class="prose">
           <h1>소개</h1>
-          <p>안녕하세요, {AUTHOR}입니다. 이 페이지를 자유롭게 수정하세요.</p>
+          <p>
+            {SITE_TITLE}은 정부 지원금과 세금·절세 정보를 정리해 전달하는 블로그입니다.
+            청년 지원 제도, 근로장려금 같은 복지 정책부터 ISA·연금저축 등 절세 방법까지,
+            신청 조건과 일정, 금액을 실제로 챙기는 데 필요한 내용을 다룹니다.
+          </p>
+          <p>
+            모든 글은 정부 부처 보도자료, 국세청·금융위원회 등 공식 자료를 기준으로 작성하며,
+            수치와 일정은 발행 시점을 기준으로 확인한 값입니다. 제도는 수시로 바뀌므로,
+            실제 신청 전에는 홈택스·복지로 등 공식 창구에서 최신 내용을 다시 확인하시기 바랍니다.
+          </p>
+          <p>
+            내용의 오류나 변경된 제도를 발견하시면 언제든 알려 주십시오. 확인 후 반영하겠습니다.
+          </p>
         </div>
       </main>
       <Footer />
