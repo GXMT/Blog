@@ -5,10 +5,11 @@
 /** 실제 배포 도메인 (끝에 슬래시 X). sitemap/RSS/canonical/OG에 사용 */
 export const SITE_URL = 'https://xpfarms.com';
 
-export const SITE_TITLE = '내 블로그';
-export const SITE_DESCRIPTION = '개발·일상·리뷰를 기록하는 블로그입니다.';
-export const AUTHOR = '홍길동';
-export const LOCALE = 'ko_KR';
+export const SITE_TITLE = 'XPFarms';
+export const SITE_DESCRIPTION =
+  "Interactive 3D guides to Minecraft's best XP, mob, and resource farms — rotate, zoom, and build them layer by layer.";
+export const AUTHOR = 'XPFarms';
+export const LOCALE = 'en_US';
 
 /**
  * 애드센스 게시자 ID. 예: 'ca-pub-1234567890123456'

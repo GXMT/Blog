@@ -4,45 +4,93 @@ media:
 
 content:
   - name: posts
-    label: 블로그 글
+    label: Farm Guides
     type: collection
     path: src/content/blog
     filename: '{fields.title}.md'
     view:
-      fields: [title, pubDate, draft]
+      fields: [title, farmType, mcVersion, pubDate, draft]
       primary: title
-      sort: [pubDate, title]
+      sort: [pubDate, title, farmType]
       default:
         sort: pubDate
         order: desc
     fields:
-      - { name: title, label: 제목, type: string, required: true }
+      - { name: title, label: Title, type: string, required: true }
       - {
           name: description,
-          label: 요약 (검색결과·공유 미리보기에 표시),
+          label: Description (shown in search results & social previews),
           type: text,
           required: true,
         }
       - {
           name: pubDate,
-          label: 발행일,
+          label: Publish date,
           type: date,
           options: { format: yyyy-MM-dd },
           required: true,
         }
       - {
           name: updatedDate,
-          label: 수정일 (선택),
+          label: Updated date (optional),
           type: date,
           options: { format: yyyy-MM-dd },
         }
-      - { name: heroImage, label: 대표 이미지 (선택), type: image }
-      - { name: heroAlt, label: 대표 이미지 대체텍스트 (선택), type: string }
-      - { name: tags, label: 태그, type: string, list: true }
+
+      # ── Farm data ──
+      - {
+          name: farmType,
+          label: Farm type,
+          type: string,
+          description: "e.g. XP, Iron, Sugar Cane, Gunpowder",
+        }
+      - {
+          name: mcVersion,
+          label: Minecraft version,
+          type: string,
+          description: "e.g. 1.21",
+        }
+      - {
+          name: rate,
+          label: Rate / efficiency,
+          type: string,
+          description: "e.g. ~400 items/hour, 30 levels/min",
+        }
+      - {
+          name: difficulty,
+          label: Difficulty,
+          type: select,
+          options: { values: [Easy, Medium, Hard] },
+        }
+      - {
+          name: materials,
+          label: Materials,
+          type: string,
+          list: true,
+          description: "One per line, e.g. 64x Cobblestone",
+        }
+      - { name: credit, label: Original designer (credit), type: string }
+      - { name: creditUrl, label: Original design link, type: string }
+      - {
+          name: schematic,
+          label: Schematic file (.schem / .litematic / .nbt) for the 3D viewer,
+          type: file,
+          options:
+            {
+              input: public/schematics,
+              output: /schematics,
+              extensions: [schem, litematic, nbt],
+            },
+        }
+
+      # ── Presentation ──
+      - { name: heroImage, label: Hero image (optional), type: image }
+      - { name: heroAlt, label: Hero image alt text (optional), type: string }
+      - { name: tags, label: Tags, type: string, list: true }
       - {
           name: draft,
-          label: 임시저장 (체크 시 사이트에 노출 안 됨),
+          label: Draft (hidden from the site while checked),
           type: boolean,
           default: false,
         }
-      - { name: body, label: 본문, type: rich-text }
+      - { name: body, label: Body, type: rich-text }

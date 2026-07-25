@@ -13,15 +13,15 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 ---
 
 <!doctype html>
-<html lang="ko">
+<html lang="en">
   <head>
-    <BaseHead title={`글 목록 · ${SITE_TITLE}`} description="전체 글 목록" />
+    <BaseHead title={`All Guides · ${SITE_TITLE}`} description="Every Minecraft farm guide." />
   </head>
   <body>
     <div class="container">
       <Header />
       <main>
-        <h1 class="page-title">전체 글 ({posts.length})</h1>
+        <h1 class="page-title">All Guides ({posts.length})</h1>
         <ul class="post-list">
           {
             posts.map((post) => (

@@ -5,15 +5,34 @@ import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
 import FormattedDate from '../components/FormattedDate.astro';
 import AdSense from '../components/AdSense.astro';
+import SchematicViewer from '../components/SchematicViewer.astro';
 import '../styles/global.css';
 
 type Props = CollectionEntry<'blog'>['data'];
-const { title, description, pubDate, updatedDate, heroImage, heroAlt, tags } =
-  Astro.props;
+const {
+  title,
+  description,
+  pubDate,
+  updatedDate,
+  heroImage,
+  heroAlt,
+  tags,
+  farmType,
+  mcVersion,
+  rate,
+  difficulty,
+  materials,
+  credit,
+  creditUrl,
+  schematic,
+} = Astro.props;
+
+// 팜 정보 박스에 보여줄 항목이 하나라도 있는지
+const hasFacts = farmType || mcVersion || rate || difficulty;
 ---
 
 <!doctype html>
-<html lang="ko">
+<html lang="en">
   <head>
     <BaseHead
       title={title}
@@ -35,7 +54,7 @@ const { title, description, pubDate, updatedDate, heroImage, heroAlt, tags } =
               <FormattedDate date={pubDate} />
               {
                 updatedDate && (
-                  <span> · 수정 <FormattedDate date={updatedDate} /></span>
+                  <span> · Updated <FormattedDate date={updatedDate} /></span>
                 )
               }
             </p>
@@ -61,9 +80,71 @@ const { title, description, pubDate, updatedDate, heroImage, heroAlt, tags } =
             )
           }
 
+          {
+            hasFacts && (
+              <dl class="facts">
+                {farmType && (
+                  <div>
+                    <dt>Farm type</dt>
+                    <dd>{farmType}</dd>
+                  </div>
+                )}
+                {mcVersion && (
+                  <div>
+                    <dt>Version</dt>
+                    <dd>{mcVersion}</dd>
+                  </div>
+                )}
+                {rate && (
+                  <div>
+                    <dt>Rate</dt>
+                    <dd>{rate}</dd>
+                  </div>
+                )}
+                {difficulty && (
+                  <div>
+                    <dt>Difficulty</dt>
+                    <dd>{difficulty}</dd>
+                  </div>
+                )}
+              </dl>
+            )
+          }
+
+          {schematic && <SchematicViewer schematic={schematic} />}
+
+          {
+            materials.length > 0 && (
+              <section class="materials">
+                <h2>Materials</h2>
+                <ul>
+                  {materials.map((m) => (
+                    <li>{m}</li>
+                  ))}
+                </ul>
+              </section>
+            )
+          }
+
           <div class="prose">
             <slot />
           </div>
+
+          {
+            credit && (
+              <p class="credit">
+                Original design by{' '}
+                {creditUrl ? (
+                  <a href={creditUrl} target="_blank" rel="noopener nofollow">
+                    {credit}
+                  </a>
+                ) : (
+                  credit
+                )}
+                . Rebuilt for this guide.
+              </p>
+            )
+          }
         </article>
 
         <!-- 본문 하단 광고 (슬롯 ID는 애드센스에서 발급받아 교체) -->
@@ -103,5 +184,49 @@ const { title, description, pubDate, updatedDate, heroImage, heroAlt, tags } =
     object-fit: cover;
     border-radius: 10px;
     margin-bottom: 2rem;
+  }
+  .facts {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1px;
+    background: var(--border, #e5e5e5);
+    border: 1px solid var(--border, #e5e5e5);
+    border-radius: 10px;
+    overflow: hidden;
+    margin: 0 0 2rem;
+  }
+  .facts > div {
+    background: var(--bg, #fff);
+    padding: 0.85rem 1rem;
+  }
+  .facts dt {
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    color: var(--muted, #999);
+    margin: 0 0 0.25rem;
+  }
+  .facts dd {
+    margin: 0;
+    font-weight: 600;
+  }
+  .materials {
+    margin: 0 0 2rem;
+  }
+  .materials h2 {
+    font-size: 1.15rem;
+    margin: 0 0 0.5rem;
+  }
+  .materials ul {
+    margin: 0;
+    padding-left: 1.2rem;
+    columns: 2;
+  }
+  .credit {
+    margin-top: 2.5rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border, #e5e5e5);
+    font-size: 0.85rem;
+    color: var(--muted, #666);
   }
 </style>

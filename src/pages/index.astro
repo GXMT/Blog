@@ -13,7 +13,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
 ---
 
 <!doctype html>
-<html lang="ko">
+<html lang="en">
   <head>
     <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
@@ -21,7 +21,7 @@ const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
     <div class="container">
       <Header />
       <main>
-        <h1 class="page-title">최근 글</h1>
+        <h1 class="page-title">Latest Guides</h1>
         <ul class="post-list">
           {
             posts.map((post) => (

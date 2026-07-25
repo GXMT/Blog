@@ -11,3 +11,6 @@ npm-debug.log*
 .env.production
 # os
 .DS_Store
+
+# Minecraft client jar (local texture source for schematic viewer — do not commit)
+public/mc-client.jar
