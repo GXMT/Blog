@@ -10,58 +10,32 @@ type Media = { src: string; alt: string; video?: string };
 const img = (name: string, alt: string): Media => ({ src: name, alt });
 const vid = (name: string, poster: string, alt: string): Media => ({ src: poster, alt, video: name });
 
-// 각 장: 제목, 분류, 한 줄, 사진 묶음(첫 장은 좌측 고정 열)
-const chapters: { no: string; title: string; tags: string; line: string; media: Media[] }[] = [
-  {
-    no: '01',
-    title: '재배실',
-    tags: '온도 · 습도 · 공기',
-    line: '보이지 않는 조건을 매일 같은 자리에 맞춥니다.',
-    media: [
-      vid('mist', 'mist', '가습 안개가 흐르는 빈 재배실'),
-      img('shelf', '선반 위 배지에서 자라는 버섯'),
-      img('rows', '줄지어 올라온 갓들'),
-    ],
-  },
-  {
-    no: '02',
-    title: '배지',
-    tags: '배양 · 준비',
-    line: '모든 것은 바탕에서 시작합니다.',
-    media: [
-      img('block', '흰 균사가 덮인 원통형 배지'),
-      img('stack', '쌓아 둔 배지 더미'),
-      img('canopy', '배지 위로 올라온 버섯'),
-    ],
-  },
-  {
-    no: '03',
-    title: '수확',
-    tags: '선별 · 손',
-    line: '하나씩, 손으로 거둡니다.',
-    media: [
-      img('pair', '장갑 낀 손 위의 참송이 두 개'),
-      img('harvest', '수확 상자에 가득 담긴 참송이'),
-      img('hand', '손에 든 참송이 한 개'),
-      img('sunlit', '햇빛 아래 손에 든 참송이'),
-    ],
-  },
-  {
-    no: '04',
-    title: '참송이',
-    tags: '상품',
-    line: '참결의 첫 번째 결실.',
-    media: [
-      img('single', '갓이 갈라진 참송이 한 개'),
-      vid('box', 'box-video', '햇빛 아래 상자에 담긴 참송이'),
-      img('box', '이끼 위에 가지런히 놓인 참송이'),
-      img('box2', '이끼를 깐 상자에 담긴 참송이'),
-    ],
-  },
+// 장마다 사진 묶음(첫 장은 좌측 고정 열)
+const chapters: Media[][] = [
+  [
+    vid('mist', 'mist', '가습 안개가 흐르는 빈 재배실'),
+    img('shelf', '선반 위 배지에서 자라는 버섯'),
+    img('rows', '줄지어 올라온 갓들'),
+  ],
+  [
+    img('block', '흰 균사가 덮인 원통형 배지'),
+    img('stack', '쌓아 둔 배지 더미'),
+    img('canopy', '배지 위로 올라온 버섯'),
+  ],
+  [
+    img('pair', '장갑 낀 손 위의 참송이 두 개'),
+    img('harvest', '수확 상자에 가득 담긴 참송이'),
+    img('hand', '손에 든 참송이 한 개'),
+    img('sunlit', '햇빛 아래 손에 든 참송이'),
+  ],
+  [
+    vid('box', 'box-video', '햇빛 아래 상자에 담긴 참송이'),
+    img('box', '이끼 위에 가지런히 놓인 참송이'),
+    img('box2', '이끼를 깐 상자에 담긴 참송이'),
+  ],
 ];
 
 const srcset = (n: string) => `/media/${n}-sm.webp 800w, /media/${n}.webp 1600w`;
-const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
 ---
 
 <!doctype html>
@@ -74,7 +48,6 @@ const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
     <div class="fixed-mark" aria-hidden="true"><Wordmark /></div>
 
     <nav class="corner cap" aria-label="주요 메뉴">
-      <a href="/blog">기록</a>
       <a href="/about">소개</a>
     </nav>
 
@@ -91,51 +64,34 @@ const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
             fetchpriority="high"
           />
         </figure>
-        <p class="cap hero-cap">참결 농장</p>
-      </section>
-
-      <section class="intro">
-        <img class="intro-img" data-reveal src="/media/single-sm.webp" alt="" loading="lazy" />
-        <p class="spaced" data-reveal>참 결</p>
-        <p class="statement" data-reveal>
-          바탕을 짓고. — 온도와 습도를 지키고. — 서두르지 않고 기다리고. — 하나씩 손으로 거둔다. —
-          참된 결을 기르는 농장.
-        </p>
-      </section>
-
-      <section class="quote">
-        <p data-reveal>좋은 것은<br />천천히 자란다.</p>
       </section>
 
       {
-        chapters.map((c, ci) => (
-          <section class:list={['chapter', { flip: ci % 2 === 1 }]} aria-labelledby={`ch-${c.no}`}>
+        chapters.map((media, ci) => (
+          <section class:list={['chapter', { flip: ci % 2 === 1 }]}>
             <div class="side">
               <div class="side-inner">
-                <h2 id={`ch-${c.no}`}>{c.title}</h2>
-                <p class="cap tags">{c.tags}</p>
                 <figure class="lead-media" data-reveal>
-                  {c.media[0].video ? (
+                  {media[0].video ? (
                     <video
-                      src={`/media/${c.media[0].video}.mp4`}
-                      poster={`/media/${c.media[0].src}.webp`}
+                      src={`/media/${media[0].video}.mp4`}
+                      poster={`/media/${media[0].src}.webp`}
                       autoplay
                       muted
                       loop
                       playsinline
                       preload="metadata"
-                      aria-label={c.media[0].alt}
+                      aria-label={media[0].alt}
                     />
                   ) : (
-                    <img src={`/media/${c.media[0].src}-sm.webp`} alt={c.media[0].alt} loading="lazy" />
+                    <img src={`/media/${media[0].src}-sm.webp`} alt={media[0].alt} loading="lazy" />
                   )}
                 </figure>
               </div>
             </div>
             <div class="main">
-              <p class="line cap" data-reveal>{c.line}</p>
               <div class="collage">
-                {c.media.slice(1).map((m, i) => (
+                {media.slice(1).map((m, i) => (
                   <figure class={`m m${i + 1}`}>
                     <div data-speed={[0.06, -0.08, 0.1][i % 3]}>
                       {m.video ? (
@@ -169,12 +125,6 @@ const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
         ))
       }
     </main>
-
-    <div class="ticker cap" aria-hidden="true">
-      <div class="ticker-track">
-        {[0, 1].map(() => ticker.map((t) => <span>{t}<i></i></span>))}
-      </div>
-    </div>
 
     <Footer />
     <Motion />
@@ -241,56 +191,6 @@ const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
       transform: scale(1.18);
     }
   }
-  .hero-cap {
-    margin: 1.4rem 0 0;
-  }
-
-  /* ── 소개 ────────────────────────────────── */
-  .intro {
-    padding: 22vh var(--gutter) 10vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-  }
-  .intro-img {
-    width: clamp(110px, 12vw, 180px);
-    aspect-ratio: 4 / 5;
-    object-fit: cover;
-  }
-  .spaced {
-    margin: 2rem 0 3rem;
-    font-size: 0.9rem;
-    font-weight: 800;
-    letter-spacing: 1.2em;
-    padding-left: 1.2em;
-  }
-  .statement {
-    margin: 0;
-    max-width: 1400px;
-    font-size: clamp(1.5rem, 3.6vw, 3.6rem);
-    font-weight: 800;
-    line-height: 1.12;
-    letter-spacing: -0.02em;
-    text-align: justify;
-    text-align-last: center;
-  }
-
-  /* ── 인용 상자 ───────────────────────────── */
-  .quote {
-    display: flex;
-    justify-content: center;
-    padding: 10vh var(--gutter) 22vh;
-  }
-  .quote p {
-    margin: 0;
-    padding: clamp(2.5rem, 7vw, 5rem) clamp(2rem, 9vw, 7rem);
-    border: 2px solid var(--ink);
-    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
-    font-weight: 800;
-    line-height: 1.35;
-    text-align: center;
-  }
-
   /* ── 장 ──────────────────────────────────── */
   .chapter {
     display: grid;
@@ -302,17 +202,6 @@ const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
     position: sticky;
     top: calc((100vw - 2 * var(--gutter)) * 0.135 + var(--gutter) * 2);
   }
-  h2 {
-    margin: 0;
-    font-size: clamp(1.4rem, 2.2vw, 2rem);
-    font-weight: 800;
-    line-height: 1.1;
-    letter-spacing: -0.02em;
-  }
-  .tags {
-    margin: 0.6rem 0 1.6rem;
-    color: var(--muted);
-  }
   .lead-media {
     margin: 0;
     max-width: 260px;
@@ -322,12 +211,6 @@ const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
     width: 100%;
     aspect-ratio: 4 / 5;
     object-fit: cover;
-  }
-  .line {
-    margin: 0 0 4rem;
-    max-width: 34em;
-    font-size: clamp(0.85rem, 1vw, 1rem);
-    line-height: 1.5;
   }
   .collage {
     display: grid;
@@ -366,40 +249,6 @@ const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
     grid-column: 5 / span 6;
   }
 
-  /* ── 하단 흐르는 띠 ──────────────────────── */
-  .ticker {
-    position: fixed;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    z-index: 6;
-    overflow: hidden;
-    white-space: nowrap;
-    padding: 0.7rem 0;
-    background: var(--paper);
-    border-top: 1px solid var(--rule);
-  }
-  .ticker-track {
-    display: inline-flex;
-    animation: slide 45s linear infinite;
-  }
-  .ticker span {
-    display: inline-flex;
-    align-items: center;
-  }
-  .ticker i {
-    display: inline-block;
-    width: 3.5rem;
-    height: 1px;
-    margin: 0 1.25rem;
-    background: currentColor;
-  }
-  @keyframes slide {
-    to {
-      transform: translateX(-50%);
-    }
-  }
-
   /* ── 반응형 ──────────────────────────────── */
   @media (max-width: 760px) {
     .fixed-mark {
@@ -424,20 +273,13 @@ const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
     }
     .side-inner {
       position: static;
-      display: grid;
-      grid-template-columns: 1fr 40%;
-      column-gap: 1rem;
-    }
-    .side-inner h2,
-    .side-inner .tags {
-      grid-column: 1;
     }
     .lead-media {
-      grid-column: 2;
-      grid-row: 1 / span 2;
+      max-width: 55%;
+      margin-bottom: 2rem;
     }
-    .line {
-      margin: 1rem 0 2rem;
+    .flip .lead-media {
+      margin-left: auto;
     }
     .m1,
     .flip .m1 {

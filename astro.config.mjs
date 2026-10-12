@@ -8,6 +8,8 @@ import { SITE_URL } from './src/consts.mjs';
 export default defineConfig({
   // 배포 도메인. 반드시 실제 도메인으로 바꾸세요. sitemap/RSS/canonical에 사용됩니다.
   site: SITE_URL,
+  // 콘텐츠 캐시를 node_modules 밖에 둠. 배포 빌드 캐시에 지운 글이 남지 않도록.
+  cacheDir: './.astro-cache',
   integrations: [
     mdx(),
     // 빌드 시 sitemap-index.xml + sitemap-0.xml 자동 생성 (구글용)

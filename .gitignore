@@ -11,3 +11,5 @@ npm-debug.log*
 .env.production
 # os
 .DS_Store
+# astro content cache
+.astro-cache/

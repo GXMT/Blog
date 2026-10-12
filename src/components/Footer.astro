@@ -2,45 +2,23 @@
 const year = new Date().getFullYear();
 ---
 
-<footer class="site-footer">
-  <p class="spaced" aria-hidden="true">참 결 농 장</p>
-  <nav class="cap" aria-label="하단 메뉴">
-    <a href="/">홈</a>
-    <a href="/blog">기록</a>
-    <a href="/about">소개</a>
-    <a href="/rss.xml">RSS</a>
-  </nav>
-  <p class="cap base">© {year} 참결 농장</p>
+<footer class="site-footer cap">
+  <span>© {year} 참결 농장</span>
+  <a href="/about">소개</a>
 </footer>
 
 <style>
   .site-footer {
     position: relative;
     z-index: 2;
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
     background: var(--ink);
     color: var(--paper);
-    padding: clamp(5rem, 14vh, 9rem) var(--gutter) 4.5rem;
-    text-align: center;
+    padding: clamp(4rem, 12vh, 7rem) var(--gutter) 1.5rem;
   }
-  .spaced {
-    margin: 0 0 3rem;
-    font-size: clamp(1.6rem, 4vw, 3.2rem);
-    font-weight: 800;
-    letter-spacing: 0.6em;
-    padding-left: 0.6em;
-  }
-  nav {
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 0.5rem 2rem;
-    margin-bottom: clamp(4rem, 12vh, 8rem);
-  }
-  nav a:hover {
+  a:hover {
     opacity: 0.6;
-  }
-  .base {
-    margin: 0;
-    opacity: 0.55;
   }
 </style>
