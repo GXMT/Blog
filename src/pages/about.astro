@@ -2,6 +2,7 @@
 import BaseHead from '../components/BaseHead.astro';
 import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
+import Motion from '../components/Motion.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts.mjs';
 import '../styles/global.css';
 ---
@@ -14,25 +15,54 @@ import '../styles/global.css';
   <body>
     <Header />
     <main class="container">
-      <h1>{SITE_DESCRIPTION}</h1>
+      <div class="grid">
+        <img
+          data-reveal
+          src="/media/shelf-sm.webp"
+          srcset="/media/shelf-sm.webp 800w, /media/shelf.webp 1600w"
+          sizes="(max-width: 760px) 60vw, 30vw"
+          alt="선반 위 배지에서 자라는 버섯"
+        />
+        <div>
+          <h1 data-reveal>참결 농장</h1>
+          <p class="cap" data-reveal>참송이</p>
+        </div>
+      </div>
     </main>
     <Footer />
+    <Motion />
   </body>
 </html>
 
 <style>
   main {
-    min-height: 60vh;
-    border-top: 1px solid var(--rule);
-    padding-top: 1rem;
-    padding-bottom: 6rem;
+    padding-top: 3rem;
+    padding-bottom: 22vh;
+  }
+  .grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: var(--gutter);
+    align-items: end;
+  }
+  img {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
   }
   h1 {
-    margin: 0;
-    max-width: 18em;
-    font-size: clamp(1.8rem, 4.2vw, 3.8rem);
-    font-weight: 400;
-    line-height: 1.2;
-    letter-spacing: -0.03em;
+    margin: 0 0 0.75rem;
+    font-size: clamp(2.6rem, 8vw, 8rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  @media (max-width: 760px) {
+    .grid {
+      grid-template-columns: 1fr;
+    }
+    img {
+      width: 60%;
+    }
   }
 </style>

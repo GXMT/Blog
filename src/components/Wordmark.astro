@@ -1,0 +1,32 @@
+---
+// 화면 폭에 정확히 맞는 CHAMGYEOL 워드마크 (SVG textLength로 맞춤)
+interface Props {
+  class?: string;
+}
+const { class: cls } = Astro.props;
+---
+
+<svg class:list={['wordmark', cls]} viewBox="0 0 1000 128" role="img" aria-label="참결 CHAMGYEOL">
+  <text
+    x="0"
+    y="124"
+    textLength="1000"
+    lengthAdjust="spacingAndGlyphs"
+    font-size="172"
+    font-weight="800"
+    letter-spacing="-6">CHAMGYEOL</text
+  >
+</svg>
+
+<style>
+  .wordmark {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+  text {
+    fill: currentColor;
+    font-family: var(--font);
+  }
+</style>

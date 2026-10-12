@@ -1,17 +1,16 @@
 /* ─────────────────────────────────────────────────────────────
-   XPFARMS — 흰 바탕, 검정 그로테스크, 노랑 하이라이트.
+   참결 — 귀리색 종이 바탕, 짙은 고동색 잉크, 굵은 그로테스크.
    ───────────────────────────────────────────────────────────── */
 :root {
-  --fg: #000000;
-  --bg: #ffffff;
-  --muted: #8a8a8a;
-  --rule: #d9d9d9;
-  --accent: #ffca29;
+  --paper: #f4efe7;
+  --ink: #2a231e;
+  --muted: #8b8076;
+  --rule: rgba(42, 35, 30, 0.18);
 
   --font: 'Pretendard Variable', Pretendard, 'Helvetica Neue', Helvetica, Arial,
     'Malgun Gothic', sans-serif;
 
-  --gutter: clamp(16px, 2.5vw, 32px);
+  --gutter: clamp(16px, 2.6vw, 40px);
 }
 
 *,
@@ -26,18 +25,19 @@ html {
 
 body {
   margin: 0;
-  background: var(--bg);
-  color: var(--fg);
+  background: var(--paper);
+  color: var(--ink);
   font-family: var(--font);
-  font-size: 17px;
-  line-height: 1.6;
-  letter-spacing: -0.01em;
+  font-size: 16px;
+  font-weight: 600;
+  line-height: 1.5;
   word-break: keep-all;
   -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: var(--accent);
+  background: var(--ink);
+  color: var(--paper);
 }
 
 a {
@@ -45,16 +45,14 @@ a {
   text-decoration: none;
 }
 
-a:hover {
-  color: var(--accent);
-}
-
 :focus-visible {
-  outline: 2px solid var(--fg);
-  outline-offset: 2px;
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
-img {
+img,
+video {
+  display: block;
   max-width: 100%;
   height: auto;
 }
@@ -63,23 +61,44 @@ img {
   padding: 0 var(--gutter);
 }
 
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+/* 작은 대문자 라벨 */
+.cap {
+  font-size: 0.78rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 /* 본문 타이포그래피 */
 .prose {
   max-width: 680px;
   font-size: 1.06rem;
+  font-weight: 400;
   line-height: 1.85;
 }
 .prose h2 {
   margin: 3rem 0 1rem;
-  font-size: 1.5rem;
-  font-weight: 500;
+  font-size: 1.45rem;
+  font-weight: 700;
   line-height: 1.3;
   letter-spacing: -0.02em;
 }
 .prose h3 {
   margin: 2rem 0 0.75rem;
-  font-size: 1.15rem;
-  font-weight: 600;
+  font-size: 1.12rem;
+  font-weight: 700;
+}
+.prose strong {
+  font-weight: 700;
 }
 .prose p,
 .prose ul,
@@ -104,17 +123,16 @@ img {
   border-bottom: 1px solid var(--rule);
 }
 .prose th {
-  font-weight: 500;
-  color: var(--muted);
+  font-weight: 700;
 }
 .prose pre {
-  background: #f4f4f4;
+  background: rgba(42, 35, 30, 0.06);
   padding: 1rem;
   overflow-x: auto;
   font-size: 0.9em;
 }
 .prose code {
-  background: #f4f4f4;
+  background: rgba(42, 35, 30, 0.06);
   padding: 0.1em 0.3em;
   font-size: 0.9em;
 }
@@ -125,7 +143,20 @@ img {
 .prose blockquote {
   margin: 1.5rem 0;
   padding-left: 1rem;
-  border-left: 2px solid var(--fg);
+  border-left: 2px solid var(--ink);
+}
+
+/* 스크롤 등장 */
+[data-reveal] {
+  opacity: 0;
+  transform: translateY(40px);
+  transition:
+    opacity 0.9s cubic-bezier(0.2, 0.7, 0.2, 1),
+    transform 0.9s cubic-bezier(0.2, 0.7, 0.2, 1);
+}
+[data-reveal].in {
+  opacity: 1;
+  transform: none;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -134,5 +165,9 @@ img {
   *::after {
     animation: none !important;
     transition: none !important;
+  }
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
   }
 }

@@ -25,31 +25,34 @@ const ymd = (d: Date) => d.toISOString().slice(0, 10).replaceAll('-', '.');
     />
   </head>
   <body>
-    <Header close="/blog" />
+    <Header />
     <main class="container">
       <article class="post">
         <aside class="side">
-          <dl>
-            <dt>발행</dt>
-            <dd><time datetime={pubDate.toISOString()}>{ymd(pubDate)}</time></dd>
-            {
-              updatedDate && (
-                <>
-                  <dt>수정</dt>
-                  <dd><time datetime={updatedDate.toISOString()}>{ymd(updatedDate)}</time></dd>
-                </>
-              )
-            }
-            {
-              tags.length > 0 && (
-                <>
-                  <dt>분류</dt>
-                  <dd>{tags.join(', ')}</dd>
-                </>
-              )
-            }
-          </dl>
-          {heroImage && <img class="hero" src={heroImage} alt={heroAlt ?? ''} />}
+          <div class="side-inner">
+            <dl class="cap">
+              <dt>발행</dt>
+              <dd><time datetime={pubDate.toISOString()}>{ymd(pubDate)}</time></dd>
+              {
+                updatedDate && (
+                  <>
+                    <dt>수정</dt>
+                    <dd><time datetime={updatedDate.toISOString()}>{ymd(updatedDate)}</time></dd>
+                  </>
+                )
+              }
+              {
+                tags.length > 0 && (
+                  <>
+                    <dt>분류</dt>
+                    <dd>{tags.join(' · ')}</dd>
+                  </>
+                )
+              }
+            </dl>
+            {heroImage && <img class="hero" src={heroImage} alt={heroAlt ?? ''} />}
+            <a class="back cap" href="/blog">← 기록</a>
+          </div>
         </aside>
         <div class="body">
           <h1>{title}</h1>
@@ -71,17 +74,16 @@ const ymd = (d: Date) => d.toISOString().slice(0, 10).replaceAll('-', '.');
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
     gap: 2rem var(--gutter);
-    padding: clamp(1rem, 4vw, 3rem) 0 clamp(4rem, 8vw, 7rem);
-    border-top: 1px solid var(--rule);
+    padding: 2.5rem 0 20vh;
   }
-  .side {
-    padding-top: 1rem;
-    font-size: 0.95rem;
+  .side-inner {
+    position: sticky;
+    top: 2rem;
   }
   dl {
     display: grid;
     grid-template-columns: auto 1fr;
-    gap: 0.25rem 1rem;
+    gap: 0.35rem 1rem;
     margin: 0 0 1.5rem;
   }
   dt {
@@ -91,27 +93,28 @@ const ymd = (d: Date) => d.toISOString().slice(0, 10).replaceAll('-', '.');
     margin: 0;
   }
   .hero {
-    display: block;
     width: 100%;
-    max-width: 260px;
+    max-width: 240px;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
   }
-  .body {
-    padding-top: 1rem;
+  .back {
+    display: inline-block;
+    margin-top: 1.5rem;
   }
   h1 {
     margin: 0;
-    max-width: 16em;
-    font-size: clamp(2rem, 4.6vw, 4.2rem);
-    font-weight: 500;
-    line-height: 1.12;
+    max-width: 15em;
+    font-size: clamp(2rem, 4.6vw, 4.4rem);
+    font-weight: 800;
+    line-height: 1.06;
     letter-spacing: -0.035em;
   }
   .lede {
     max-width: 680px;
-    margin: 1.5rem 0 2.5rem;
+    margin: 1.75rem 0 3rem;
     font-size: 1.2rem;
-    line-height: 1.6;
-    color: var(--muted);
+    line-height: 1.55;
   }
   @media (max-width: 860px) {
     .post {
@@ -120,6 +123,10 @@ const ymd = (d: Date) => d.toISOString().slice(0, 10).replaceAll('-', '.');
     .side {
       order: 2;
       border-top: 1px solid var(--rule);
+      padding-top: 1.5rem;
+    }
+    .side-inner {
+      position: static;
     }
     .hero {
       max-width: 160px;

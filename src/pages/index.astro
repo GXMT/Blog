@@ -1,106 +1,459 @@
 ---
-import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
+import Wordmark from '../components/Wordmark.astro';
 import Footer from '../components/Footer.astro';
+import Motion from '../components/Motion.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts.mjs';
 import '../styles/global.css';
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
-  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
-);
+type Media = { src: string; alt: string; video?: string };
+const img = (name: string, alt: string): Media => ({ src: name, alt });
+const vid = (name: string, poster: string, alt: string): Media => ({ src: poster, alt, video: name });
 
-// 큰 단어 목록: 사이트명(소개), 글마다 첫 번째 태그(없으면 제목), 끝에 기록
-const words = [
-  { label: SITE_TITLE, href: '/about', image: undefined },
-  ...posts.map((p) => ({
-    label: p.data.tags[0] ?? p.data.title,
-    href: `/blog/${p.id}/`,
-    image: p.data.heroImage,
-  })),
-  { label: '기록', href: '/blog', image: undefined },
+// 각 장: 제목, 분류, 한 줄, 사진 묶음(첫 장은 좌측 고정 열)
+const chapters: { no: string; title: string; tags: string; line: string; media: Media[] }[] = [
+  {
+    no: '01',
+    title: '재배실',
+    tags: '온도 · 습도 · 공기',
+    line: '보이지 않는 조건을 매일 같은 자리에 맞춥니다.',
+    media: [
+      vid('mist', 'mist', '가습 안개가 흐르는 빈 재배실'),
+      img('shelf', '선반 위 배지에서 자라는 버섯'),
+      img('rows', '줄지어 올라온 갓들'),
+    ],
+  },
+  {
+    no: '02',
+    title: '배지',
+    tags: '배양 · 준비',
+    line: '모든 것은 바탕에서 시작합니다.',
+    media: [
+      img('block', '흰 균사가 덮인 원통형 배지'),
+      img('stack', '쌓아 둔 배지 더미'),
+      img('canopy', '배지 위로 올라온 버섯'),
+    ],
+  },
+  {
+    no: '03',
+    title: '수확',
+    tags: '선별 · 손',
+    line: '하나씩, 손으로 거둡니다.',
+    media: [
+      img('pair', '장갑 낀 손 위의 참송이 두 개'),
+      img('harvest', '수확 상자에 가득 담긴 참송이'),
+      img('hand', '손에 든 참송이 한 개'),
+      img('sunlit', '햇빛 아래 손에 든 참송이'),
+    ],
+  },
+  {
+    no: '04',
+    title: '참송이',
+    tags: '상품',
+    line: '참결의 첫 번째 결실.',
+    media: [
+      img('single', '갓이 갈라진 참송이 한 개'),
+      vid('box', 'box-video', '햇빛 아래 상자에 담긴 참송이'),
+      img('box', '이끼 위에 가지런히 놓인 참송이'),
+      img('box2', '이끼를 깐 상자에 담긴 참송이'),
+    ],
+  },
 ];
-const circled = (i: number) => String.fromCharCode(0x2460 + i);
+
+const srcset = (n: string) => `/media/${n}-sm.webp 800w, /media/${n}.webp 1600w`;
+const ticker = Array.from({ length: 8 }, () => '2026 참결 농장 참송이');
 ---
 
 <!doctype html>
 <html lang="ko">
   <head>
-    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
+    <BaseHead title={`${SITE_TITLE} 농장`} description={SITE_DESCRIPTION} />
   </head>
   <body>
-    <div class="screen">
-      <main>
-        <h1 class="sr-only">{SITE_TITLE}</h1>
-        <nav class="words" aria-label="주요 메뉴">
-          {
-            words.map((w, i) => (
-              <>
-                <a class="word" href={w.href}>{w.label}<sup>{circled(i)}</sup></a>
-                {w.image && <img class="peek" src={w.image} alt="" loading="lazy" />}{' '}
-              </>
-            ))
-          }
-        </nav>
-      </main>
-      <Footer />
+    <!-- 고정 워드마크: 콘텐츠가 그 위로 지나감 -->
+    <div class="fixed-mark" aria-hidden="true"><Wordmark /></div>
+
+    <nav class="corner cap" aria-label="주요 메뉴">
+      <a href="/blog">기록</a>
+      <a href="/about">소개</a>
+    </nav>
+
+    <main>
+      <h1 class="sr-only">참결 농장</h1>
+
+      <section class="hero">
+        <figure class="hero-frame">
+          <img
+            src="/media/room.webp"
+            srcset={srcset('room')}
+            sizes="(max-width: 760px) 100vw, 82vw"
+            alt="양쪽으로 배지 선반이 길게 이어진 재배실 통로"
+            fetchpriority="high"
+          />
+        </figure>
+        <p class="cap hero-cap">참결 농장</p>
+      </section>
+
+      <section class="intro">
+        <img class="intro-img" data-reveal src="/media/single-sm.webp" alt="" loading="lazy" />
+        <p class="spaced" data-reveal>참 결</p>
+        <p class="statement" data-reveal>
+          바탕을 짓고. — 온도와 습도를 지키고. — 서두르지 않고 기다리고. — 하나씩 손으로 거둔다. —
+          참된 결을 기르는 농장.
+        </p>
+      </section>
+
+      <section class="quote">
+        <p data-reveal>좋은 것은<br />천천히 자란다.</p>
+      </section>
+
+      {
+        chapters.map((c, ci) => (
+          <section class:list={['chapter', { flip: ci % 2 === 1 }]} aria-labelledby={`ch-${c.no}`}>
+            <div class="side">
+              <div class="side-inner">
+                <h2 id={`ch-${c.no}`}>{c.title}</h2>
+                <p class="cap tags">{c.tags}</p>
+                <figure class="lead-media" data-reveal>
+                  {c.media[0].video ? (
+                    <video
+                      src={`/media/${c.media[0].video}.mp4`}
+                      poster={`/media/${c.media[0].src}.webp`}
+                      autoplay
+                      muted
+                      loop
+                      playsinline
+                      preload="metadata"
+                      aria-label={c.media[0].alt}
+                    />
+                  ) : (
+                    <img src={`/media/${c.media[0].src}-sm.webp`} alt={c.media[0].alt} loading="lazy" />
+                  )}
+                </figure>
+              </div>
+            </div>
+            <div class="main">
+              <p class="line cap" data-reveal>{c.line}</p>
+              <div class="collage">
+                {c.media.slice(1).map((m, i) => (
+                  <figure class={`m m${i + 1}`}>
+                    <div data-speed={[0.06, -0.08, 0.1][i % 3]}>
+                      {m.video ? (
+                        <video
+                          src={`/media/${m.video}.mp4`}
+                          poster={`/media/${m.src}.webp`}
+                          autoplay
+                          muted
+                          loop
+                          playsinline
+                          preload="metadata"
+                          aria-label={m.alt}
+                          data-reveal
+                        />
+                      ) : (
+                        <img
+                          src={`/media/${m.src}-sm.webp`}
+                          srcset={srcset(m.src)}
+                          sizes="(max-width: 760px) 90vw, 40vw"
+                          alt={m.alt}
+                          loading="lazy"
+                          data-reveal
+                        />
+                      )}
+                    </div>
+                  </figure>
+                ))}
+              </div>
+            </div>
+          </section>
+        ))
+      }
+    </main>
+
+    <div class="ticker cap" aria-hidden="true">
+      <div class="ticker-track">
+        {[0, 1].map(() => ticker.map((t) => <span>{t}<i></i></span>))}
+      </div>
     </div>
+
+    <Footer />
+    <Motion />
   </body>
 </html>
 
 <style>
-  .screen {
+  /* ── 고정 워드마크 ───────────────────────── */
+  .fixed-mark {
+    position: fixed;
+    top: var(--gutter);
+    left: var(--gutter);
+    right: var(--gutter);
+    z-index: 0;
+    pointer-events: none;
+  }
+  .corner {
+    position: fixed;
+    top: calc(var(--gutter) * 0.5);
+    right: var(--gutter);
+    z-index: 5;
+    display: flex;
+    gap: 1.25rem;
+    mix-blend-mode: difference;
+    color: #f4efe7;
+  }
+  main {
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ── 히어로 ──────────────────────────────── */
+  .hero {
+    padding-top: calc((100vw - 2 * var(--gutter)) * 0.085 + var(--gutter));
     min-height: 100vh;
     min-height: 100svh;
     display: flex;
     flex-direction: column;
-  }
-  main {
-    flex: 1;
-    display: flex;
-    align-items: flex-start;
+    align-items: center;
     justify-content: center;
-    padding: clamp(2rem, 6vh, 4rem) var(--gutter);
   }
-  .words {
-    max-width: 14em;
-    font-size: clamp(2.6rem, 7.2vw, 7rem);
-    line-height: 1.2;
-    letter-spacing: -0.03em;
-    text-align: center;
+  .hero-frame {
+    margin: 0;
+    width: min(82vw, 1500px);
+    overflow: hidden;
+    animation: open 1.4s cubic-bezier(0.7, 0, 0.2, 1) both;
   }
-  .word {
-    position: relative;
-    z-index: 1;
-    white-space: nowrap;
+  .hero-frame img {
+    width: 100%;
+    height: min(41vw, 62vh);
+    object-fit: cover;
+    animation: settle 2.4s cubic-bezier(0.2, 0.6, 0.2, 1) both;
   }
-  sup {
-    font-size: 0.32em;
-    vertical-align: 1.6em;
-    margin-left: 0.04em;
-    letter-spacing: 0;
-  }
-  /* 단어에 올리면 뒤편에 대표 이미지가 떠오름 */
-  .peek {
-    display: none;
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    width: min(32vw, 420px);
-    transform: translate(-50%, -50%);
-    z-index: 0;
-    pointer-events: none;
-  }
-  @media (hover: hover) {
-    .word:hover + .peek {
-      display: block;
+  @keyframes open {
+    from {
+      clip-path: inset(45% 0 45% 0);
+    }
+    to {
+      clip-path: inset(0 0 0 0);
     }
   }
-  .sr-only {
-    position: absolute;
-    width: 1px;
-    height: 1px;
+  @keyframes settle {
+    from {
+      transform: scale(1.18);
+    }
+  }
+  .hero-cap {
+    margin: 1.4rem 0 0;
+  }
+
+  /* ── 소개 ────────────────────────────────── */
+  .intro {
+    padding: 22vh var(--gutter) 10vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+  }
+  .intro-img {
+    width: clamp(110px, 12vw, 180px);
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .spaced {
+    margin: 2rem 0 3rem;
+    font-size: 0.9rem;
+    font-weight: 800;
+    letter-spacing: 1.2em;
+    padding-left: 1.2em;
+  }
+  .statement {
+    margin: 0;
+    max-width: 1400px;
+    font-size: clamp(1.5rem, 3.6vw, 3.6rem);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.02em;
+    text-align: justify;
+    text-align-last: center;
+  }
+
+  /* ── 인용 상자 ───────────────────────────── */
+  .quote {
+    display: flex;
+    justify-content: center;
+    padding: 10vh var(--gutter) 22vh;
+  }
+  .quote p {
+    margin: 0;
+    padding: clamp(2.5rem, 7vw, 5rem) clamp(2rem, 9vw, 7rem);
+    border: 2px solid var(--ink);
+    font-size: clamp(1.1rem, 1.8vw, 1.5rem);
+    font-weight: 800;
+    line-height: 1.35;
+    text-align: center;
+  }
+
+  /* ── 장 ──────────────────────────────────── */
+  .chapter {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 3fr);
+    gap: var(--gutter);
+    padding: 12vh var(--gutter) 22vh;
+  }
+  .side-inner {
+    position: sticky;
+    top: calc((100vw - 2 * var(--gutter)) * 0.135 + var(--gutter) * 2);
+  }
+  h2 {
+    margin: 0;
+    font-size: clamp(1.4rem, 2.2vw, 2rem);
+    font-weight: 800;
+    line-height: 1.1;
+    letter-spacing: -0.02em;
+  }
+  .tags {
+    margin: 0.6rem 0 1.6rem;
+    color: var(--muted);
+  }
+  .lead-media {
+    margin: 0;
+    max-width: 260px;
+  }
+  .lead-media img,
+  .lead-media video {
+    width: 100%;
+    aspect-ratio: 4 / 5;
+    object-fit: cover;
+  }
+  .line {
+    margin: 0 0 4rem;
+    max-width: 34em;
+    font-size: clamp(0.85rem, 1vw, 1rem);
+    line-height: 1.5;
+  }
+  .collage {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    column-gap: var(--gutter);
+  }
+  .m {
+    margin: 0;
+  }
+  .m img,
+  .m video {
+    width: 100%;
+    height: auto;
+    object-fit: cover;
+  }
+  .m1 {
+    grid-column: 1 / span 5;
+    margin-top: 8vh;
+  }
+  .m2 {
+    grid-column: 7 / span 6;
+  }
+  .m3 {
+    grid-column: 4 / span 5;
+    margin-top: 6vh;
+  }
+  .flip .m1 {
+    grid-column: 8 / span 5;
+  }
+  .flip .m2 {
+    grid-column: 1 / span 6;
+    grid-row: 1;
+    margin-top: 14vh;
+  }
+  .flip .m3 {
+    grid-column: 5 / span 6;
+  }
+
+  /* ── 하단 흐르는 띠 ──────────────────────── */
+  .ticker {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 6;
     overflow: hidden;
-    clip: rect(0 0 0 0);
     white-space: nowrap;
+    padding: 0.7rem 0;
+    background: var(--paper);
+    border-top: 1px solid var(--rule);
+  }
+  .ticker-track {
+    display: inline-flex;
+    animation: slide 45s linear infinite;
+  }
+  .ticker span {
+    display: inline-flex;
+    align-items: center;
+  }
+  .ticker i {
+    display: inline-block;
+    width: 3.5rem;
+    height: 1px;
+    margin: 0 1.25rem;
+    background: currentColor;
+  }
+  @keyframes slide {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  /* ── 반응형 ──────────────────────────────── */
+  @media (max-width: 760px) {
+    .fixed-mark {
+      top: 2.6rem;
+    }
+    .corner {
+      top: 0.9rem;
+    }
+    .hero {
+      padding-top: calc((100vw - 2 * var(--gutter)) * 0.13 + 3.5rem);
+    }
+    .hero-frame {
+      width: 100%;
+    }
+    .hero-frame img {
+      height: auto;
+      aspect-ratio: 4 / 5;
+    }
+    .chapter {
+      grid-template-columns: 1fr;
+      padding-bottom: 14vh;
+    }
+    .side-inner {
+      position: static;
+      display: grid;
+      grid-template-columns: 1fr 40%;
+      column-gap: 1rem;
+    }
+    .side-inner h2,
+    .side-inner .tags {
+      grid-column: 1;
+    }
+    .lead-media {
+      grid-column: 2;
+      grid-row: 1 / span 2;
+    }
+    .line {
+      margin: 1rem 0 2rem;
+    }
+    .m1,
+    .flip .m1 {
+      grid-column: 1 / span 8;
+      margin-top: 0;
+    }
+    .m2,
+    .flip .m2 {
+      grid-column: 5 / span 8;
+      grid-row: auto;
+      margin-top: 2rem;
+    }
+    .m3,
+    .flip .m3 {
+      grid-column: 2 / span 9;
+      margin-top: 2rem;
+    }
   }
 </style>

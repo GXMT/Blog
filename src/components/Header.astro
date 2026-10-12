@@ -1,13 +1,7 @@
 ---
-import { SITE_TITLE } from '../consts.mjs';
+import Wordmark from './Wordmark.astro';
 
-interface Props {
-  /** ✕ 버튼이 돌아갈 곳 */
-  close?: string;
-}
-const { close = '/' } = Astro.props;
 const path = Astro.url.pathname;
-
 const links = [
   { href: '/blog', label: '기록' },
   { href: '/about', label: '소개' },
@@ -15,55 +9,37 @@ const links = [
 ---
 
 <header class="site-header">
-  <nav aria-label="주요 메뉴">
-    <a href="/">{SITE_TITLE}</a>
-    {
-      links.map((l, i) => (
-        <a href={l.href} aria-current={path.startsWith(l.href) ? 'page' : undefined}>
-          {l.label}
-          <sup>{String.fromCharCode(0x2460 + i)}</sup>
-        </a>
-      ))
-    }
+  <a href="/" class="mark" aria-label="참결 홈"><Wordmark /></a>
+  <nav class="cap" aria-label="주요 메뉴">
+    <a href="/">참결 농장</a>
+    <span>
+      {
+        links.map((l) => (
+          <a href={l.href} aria-current={path.startsWith(l.href) ? 'page' : undefined}>
+            {l.label}
+          </a>
+        ))
+      }
+    </span>
   </nav>
-  <a class="close" href={close} aria-label="닫기">
-    <svg viewBox="0 0 40 40" aria-hidden="true">
-      <path d="M4 4L36 36M36 4L4 36" stroke="currentColor" stroke-width="2.5" />
-    </svg>
-  </a>
 </header>
 
 <style>
   .site-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-start;
-    gap: 1rem;
-    padding: var(--gutter);
+    padding: var(--gutter) var(--gutter) 0;
   }
   nav {
     display: flex;
-    flex-wrap: wrap;
-    gap: 0 0.6em;
-    font-size: clamp(1.4rem, 2.6vw, 2rem);
-    line-height: 1.15;
-    letter-spacing: -0.02em;
+    justify-content: space-between;
+    padding: 0.9rem 0;
+    border-bottom: 1px solid var(--rule);
+  }
+  nav span {
+    display: flex;
+    gap: 1.5rem;
   }
   nav a[aria-current='page'] {
-    color: var(--accent);
-  }
-  sup {
-    font-size: 0.45em;
-    margin-left: 0.05em;
-  }
-  .close {
-    flex: none;
-    width: clamp(32px, 4vw, 44px);
-    height: clamp(32px, 4vw, 44px);
-  }
-  .close svg {
-    display: block;
-    width: 100%;
-    height: 100%;
+    text-decoration: underline;
+    text-underline-offset: 4px;
   }
 </style>
