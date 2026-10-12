@@ -8,6 +8,7 @@ import {
   NAVER_SITE_VERIFICATION,
   GOOGLE_SITE_VERIFICATION,
 } from '../consts.mjs';
+import { phone, sameAs } from '../lib/channels';
 
 interface Props {
   title: string;
@@ -34,7 +35,7 @@ const {
 const canonicalURL = new URL(Astro.url.pathname, Astro.site ?? SITE_URL);
 const imageURL = new URL(image, Astro.site ?? SITE_URL);
 
-// 구조화 데이터: 글이면 BlogPosting, 그 외 WebSite
+// 구조화 데이터: 글이면 BlogPosting, 그 외 WebSite + 농장(Organization: 전화·SNS·스토어)
 const jsonLd =
   type === 'article'
     ? {
@@ -52,9 +53,17 @@ const jsonLd =
       }
     : {
         '@context': 'https://schema.org',
-        '@type': 'WebSite',
-        name: SITE_TITLE,
-        url: SITE_URL,
+        '@graph': [
+          { '@type': 'WebSite', name: SITE_TITLE, url: SITE_URL },
+          {
+            '@type': 'Organization',
+            name: AUTHOR,
+            url: SITE_URL,
+            logo: new URL('/favicon.svg', SITE_URL).toString(),
+            ...(phone ? { telephone: phone.href.replace('tel:', '') } : {}),
+            ...(sameAs.length ? { sameAs } : {}),
+          },
+        ],
       };
 ---
 

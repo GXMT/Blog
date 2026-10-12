@@ -1,0 +1,128 @@
+---
+import BaseHead from '../components/BaseHead.astro';
+import Header from '../components/Header.astro';
+import Footer from '../components/Footer.astro';
+import Motion from '../components/Motion.astro';
+import { products, phone, socials } from '../lib/channels';
+import { SITE_TITLE } from '../consts.mjs';
+import '../styles/global.css';
+
+// 판매 플랫폼 링크가 하나도 없는 상품은 전화·SNS로 주문 받음
+const fallback = [
+  ...(phone ? [{ name: phone.display, url: phone.href, external: false }] : []),
+  ...socials.map((s) => ({ ...s, external: true })),
+];
+---
+
+<!doctype html>
+<html lang="ko">
+  <head>
+    <BaseHead title={`구매 · ${SITE_TITLE}`} description="참결 농장 참송이 구매처." />
+  </head>
+  <body>
+    <Header />
+    <main class="container">
+      <h1 class="sr-only">구매</h1>
+      <ul class="products">
+        {
+          products.map((p) => {
+            const links = p.buy.length
+              ? p.buy.map((b) => ({ ...b, external: true }))
+              : fallback;
+            return (
+              <li class="product" data-reveal>
+                <img
+                  src={p.image.replace(/\.webp$/, '-sm.webp')}
+                  srcset={`${p.image.replace(/\.webp$/, '-sm.webp')} 800w, ${p.image} 1600w`}
+                  sizes="(max-width: 760px) 100vw, 45vw"
+                  alt={p.name}
+                />
+                <div class="info">
+                  <h2>{p.name}</h2>
+                  <ul class="buy">
+                    {links.map((l) => (
+                      <li>
+                        <a
+                          class="btn"
+                          href={l.url}
+                          {...(l.external ? { target: '_blank', rel: 'noopener' } : {})}
+                        >
+                          <span>{l.name}</span>
+                          <span aria-hidden="true">{l.external ? '↗' : '→'}</span>
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              </li>
+            );
+          })
+        }
+      </ul>
+    </main>
+    <Footer />
+    <Motion />
+  </body>
+</html>
+
+<style>
+  main {
+    padding-top: 2.5rem;
+    padding-bottom: 20vh;
+  }
+  .products {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 12vh;
+  }
+  .product {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 4fr);
+    gap: var(--gutter);
+    align-items: end;
+  }
+  .product img {
+    width: 100%;
+    aspect-ratio: 5 / 4;
+    object-fit: cover;
+  }
+  h2 {
+    margin: 0 0 1.75rem;
+    font-size: clamp(2.4rem, 6vw, 6rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.04em;
+  }
+  .buy {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--ink);
+  }
+  .btn {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.1rem 0;
+    border-bottom: 1px solid var(--ink);
+    font-size: clamp(1rem, 1.4vw, 1.25rem);
+    font-weight: 700;
+    transition:
+      padding 0.25s,
+      background 0.25s,
+      color 0.25s;
+  }
+  .btn:hover {
+    padding-left: 1rem;
+    padding-right: 1rem;
+    background: var(--ink);
+    color: var(--paper);
+  }
+  @media (max-width: 760px) {
+    .product {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

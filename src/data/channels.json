@@ -1,0 +1,23 @@
+{
+  "phone": "010-2906-5407",
+  "socials": [
+    { "name": "Instagram", "url": "https://www.instagram.com/ultra_fungi/" }
+  ],
+  "stores": [
+    { "id": "smartstore", "name": "네이버 스마트스토어", "url": "" },
+    { "id": "coupang", "name": "쿠팡", "url": "" },
+    { "id": "kakao", "name": "카카오톡 선물하기", "url": "" }
+  ],
+  "products": [
+    {
+      "id": "chamsongi",
+      "name": "참송이",
+      "image": "/media/box.webp",
+      "links": [
+        { "store": "smartstore", "url": "" },
+        { "store": "coupang", "url": "" },
+        { "store": "kakao", "url": "" }
+      ]
+    }
+  ]
+}

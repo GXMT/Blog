@@ -51,3 +51,41 @@ content:
           default: false,
         }
       - { name: body, label: 본문, type: rich-text }
+
+  - name: channels
+    label: 연락처·판매처
+    type: file
+    path: src/data/channels.json
+    format: json
+    fields:
+      - { name: phone, label: 전화번호, type: string }
+      - name: socials
+        label: SNS
+        type: object
+        list: true
+        fields:
+          - { name: name, label: 이름, type: string }
+          - { name: url, label: 주소, type: string }
+      - name: stores
+        label: 판매 플랫폼 (주소가 빈 플랫폼은 사이트에 안 보임)
+        type: object
+        list: true
+        fields:
+          - { name: id, label: 식별자 (영문), type: string }
+          - { name: name, label: 표시 이름, type: string }
+          - { name: url, label: 스토어 주소, type: string }
+      - name: products
+        label: 상품
+        type: object
+        list: true
+        fields:
+          - { name: id, label: 식별자 (영문), type: string }
+          - { name: name, label: 상품명, type: string }
+          - { name: image, label: '이미지 경로 (예: /media/box.webp)', type: string }
+          - name: links
+            label: 플랫폼별 상품 주소 (비우면 스토어 주소로 연결)
+            type: object
+            list: true
+            fields:
+              - { name: store, label: 플랫폼 식별자, type: string }
+              - { name: url, label: 상품 주소, type: string }

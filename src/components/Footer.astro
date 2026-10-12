@@ -1,24 +1,78 @@
 ---
+import { phone, socials, stores } from '../lib/channels';
 const year = new Date().getFullYear();
 ---
 
-<footer class="site-footer cap">
-  <span>© {year} 참결 농장</span>
-  <a href="/about">소개</a>
+<footer class="site-footer">
+  <div class="cols">
+    {
+      phone && (
+        <a class="tel" href={phone.href}>
+          {phone.display}
+        </a>
+      )
+    }
+    <ul class="cap">
+      {
+        [...socials, ...stores].map((l) => (
+          <li>
+            <a href={l.url} target="_blank" rel="noopener">
+              {l.name} <span aria-hidden="true">↗</span>
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+    <ul class="cap">
+      <li><a href="/shop">구매</a></li>
+      <li><a href="/about">소개</a></li>
+    </ul>
+  </div>
+  <p class="cap base">© {year} 참결 농장</p>
 </footer>
 
 <style>
   .site-footer {
     position: relative;
     z-index: 2;
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
     background: var(--ink);
     color: var(--paper);
     padding: clamp(4rem, 12vh, 7rem) var(--gutter) 1.5rem;
   }
+  .cols {
+    display: grid;
+    grid-template-columns: minmax(0, 2fr) minmax(0, 1fr) minmax(0, 1fr);
+    gap: 2rem var(--gutter);
+    align-items: start;
+    margin-bottom: clamp(4rem, 12vh, 7rem);
+  }
+  .tel {
+    font-size: clamp(1.8rem, 4.4vw, 4rem);
+    font-weight: 800;
+    line-height: 1;
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.5rem;
+  }
   a:hover {
     opacity: 0.6;
+  }
+  .base {
+    margin: 0;
+    opacity: 0.55;
+  }
+  @media (max-width: 760px) {
+    .cols {
+      grid-template-columns: 1fr 1fr;
+    }
+    .tel {
+      grid-column: 1 / -1;
+    }
   }
 </style>
