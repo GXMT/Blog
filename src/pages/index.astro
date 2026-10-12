@@ -1,950 +1,106 @@
 ---
 import { getCollection } from 'astro:content';
 import BaseHead from '../components/BaseHead.astro';
-import Header from '../components/Header.astro';
 import Footer from '../components/Footer.astro';
-import FormattedDate from '../components/FormattedDate.astro';
 import { SITE_TITLE, SITE_DESCRIPTION } from '../consts.mjs';
 import '../styles/global.css';
 
-const posts = (await getCollection('blog', ({ data }) => !data.draft))
-  .sort((a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf())
-  .slice(0, 6);
+const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
+  (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
+);
 
-// 24절기 (양력 기준 근사일, ±1일)
-const terms = [
-  ['소한', '小寒', 1, 5], ['대한', '大寒', 1, 20], ['입춘', '立春', 2, 4],
-  ['우수', '雨水', 2, 19], ['경칩', '驚蟄', 3, 5], ['춘분', '春分', 3, 20],
-  ['청명', '淸明', 4, 5], ['곡우', '穀雨', 4, 20], ['입하', '立夏', 5, 5],
-  ['소만', '小滿', 5, 21], ['망종', '芒種', 6, 6], ['하지', '夏至', 6, 21],
-  ['소서', '小暑', 7, 7], ['대서', '大暑', 7, 23], ['입추', '立秋', 8, 7],
-  ['처서', '處暑', 8, 23], ['백로', '白露', 9, 7], ['추분', '秋分', 9, 23],
-  ['한로', '寒露', 10, 8], ['상강', '霜降', 10, 23], ['입동', '立冬', 11, 7],
-  ['소설', '小雪', 11, 22], ['대설', '大雪', 12, 7], ['동지', '冬至', 12, 22],
-] as const;
-
-// 빌드 시점 기준 현재 절기(페이지 로드 시 스크립트가 다시 계산)
-function termIndex(d: Date) {
-  const md = (d.getMonth() + 1) * 100 + d.getDate();
-  let idx = terms.length - 1; // 1월 5일 이전이면 전년도 동지
-  terms.forEach(([, , m, day], i) => {
-    if (md >= m * 100 + day) idx = i;
-  });
-  return idx;
-}
-const now = new Date();
-const cur = termIndex(now);
-
-// 히어로 밭고랑: 지평선(y=250)의 소실점으로 모이는 줄무늬
-const VP = 300;
-const HORIZON = 250;
-const furrows = Array.from({ length: 14 }, (_, i) => {
-  const step = 1400 / 14;
-  const x0 = -400 + i * step;
-  const x1 = x0 + step;
-  const top = (x: number) => VP + (x - VP) * 0.06;
-  return {
-    points: `${x0},600 ${x1},600 ${top(x1)},${HORIZON} ${top(x0)},${HORIZON}`,
-    fill: i % 2 === 0 ? 'var(--chlorophyll)' : 'var(--ink)',
-  };
-});
-
-const ticker = [
-  '정밀농업', 'PRECISION AGRICULTURE', '스마트팜', 'CONTROLLED ENVIRONMENT',
-  '수직농장', 'VERTICAL FARMING', '농업로봇', 'AUTONOMY', '토양 데이터',
-  'SOIL INTELLIGENCE', '위성 원격탐사', 'REMOTE SENSING',
+// 큰 단어 목록: 사이트명(소개), 글마다 첫 번째 태그(없으면 제목), 끝에 기록
+const words = [
+  { label: SITE_TITLE, href: '/about', image: undefined },
+  ...posts.map((p) => ({
+    label: p.data.tags[0] ?? p.data.title,
+    href: `/blog/${p.id}/`,
+    image: p.data.heroImage,
+  })),
+  { label: '기록', href: '/blog', image: undefined },
 ];
-
-const pipeline = [
-  { code: 'SOIL', ko: '흙', body: '모든 것은 땅에서 시작한다. 같은 필지 안에서도 흙은 한 걸음마다 다르다.' },
-  { code: 'SENSE', ko: '감지', body: '수분, 온도, 전기전도도, 엽색. 센서와 드론, 위성이 밭을 숫자로 바꾼다.' },
-  { code: 'SIGNAL', ko: '해석', body: '흩어진 숫자를 모델이 읽는다. 생육 단계, 스트레스, 병해의 징후.' },
-  { code: 'DECIDE', ko: '결정', body: '언제 물을 주고, 얼마나 시비하고, 언제 수확할지. 판단은 결국 사람이 한다.' },
-];
-
-const pillars = [
-  { no: '01', ko: '스마트팜', en: 'SMART FARM', body: '온실의 온도, 습도, CO₂, 양액을 센서와 제어기가 자동으로 맞추는 시설농업.', tone: 'chlorophyll' },
-  { no: '02', ko: '정밀농업', en: 'PRECISION AG', body: '위성·드론 영상과 토양 지도로 필지 안의 차이를 읽고, 필요한 곳에만 투입한다.', tone: 'white' },
-  { no: '03', ko: '수직농장', en: 'VERTICAL FARM', body: 'LED와 수경재배로 실내에 층층이 쌓아, 날씨와 무관하게 연중 생산한다.', tone: 'sky' },
-  { no: '04', ko: '농업로봇', en: 'AGRI ROBOTICS', body: '자율주행 트랙터, 수확·제초 로봇. 반복되는 노동을 기계가 맡는다.', tone: 'signal' },
-  { no: '05', ko: '데이터·AI', en: 'DATA & MODELS', body: '생육 예측, 영상 기반 병해충 진단, 수확량 모델. 감이 아닌 근거로.', tone: 'white' },
-  { no: '06', ko: '기후·토양', en: 'CLIMATE & SOIL', body: '물 관리, 탄소 저장, 토양 건강. 다음 세대도 경작할 수 있는 땅.', tone: 'paper' },
-];
+const circled = (i: number) => String.fromCharCode(0x2460 + i);
 ---
 
 <!doctype html>
 <html lang="ko">
   <head>
-    <BaseHead title={`${SITE_TITLE} — 흙과 데이터 사이`} description={SITE_DESCRIPTION} />
+    <BaseHead title={SITE_TITLE} description={SITE_DESCRIPTION} />
   </head>
   <body>
-    <div class="ticker mono" aria-hidden="true">
-      <div class="ticker-track">
-        {[0, 1].map(() => ticker.map((t) => <span>{t}<i>✶</i></span>))}
-      </div>
+    <div class="screen">
+      <main>
+        <h1 class="sr-only">{SITE_TITLE}</h1>
+        <nav class="words" aria-label="주요 메뉴">
+          {
+            words.map((w, i) => (
+              <>
+                <a class="word" href={w.href}>{w.label}<sup>{circled(i)}</sup></a>
+                {w.image && <img class="peek" src={w.image} alt="" loading="lazy" />}{' '}
+              </>
+            ))
+          }
+        </nav>
+      </main>
+      <Footer />
     </div>
-
-    <Header />
-
-    <main>
-      <!-- ── HERO ─────────────────────────────────── -->
-      <section class="hero container">
-        <div class="hero-copy">
-          <p class="kicker mono"><span class="tag">N°001</span> 현대 농업 기록소 / MODERN AGRICULTURE INDEX</p>
-          <h1>
-            <span class="line">농업은</span>
-            <span class="line">이제</span>
-            <span class="line"><mark>데이터</mark>다.</span>
-          </h1>
-          <p class="lead">
-            트랙터는 스스로 달리고, 위성은 잎의 색을 읽고, 온실은 알아서 숨을 쉰다.
-            {SITE_TITLE}는 흙과 데이터 사이에서 현대 농업이 실제로 어떻게 작동하는지 기록한다.
-          </p>
-          <div class="cta">
-            <a class="btn btn-primary" href="/blog">기록 보기 <span aria-hidden="true">→</span></a>
-            <a class="btn" href="/about">소개 <span aria-hidden="true">↗</span></a>
-          </div>
-        </div>
-
-        <div class="hero-visual">
-          <figure class="field" aria-label="소실점으로 모이는 밭고랑 위를 드론이 스캔하는 그래픽">
-            <div class="field-meta mono">
-              <span>FIELD_07</span><span>NDVI SCAN</span><span class="blink">● REC</span>
-            </div>
-            <svg viewBox="0 0 600 600" preserveAspectRatio="xMidYMid slice" role="presentation">
-              <rect width="600" height="250" fill="var(--paper)" />
-              <g class="sun">
-                <circle cx="430" cy="140" r="78" fill="var(--signal)" stroke="var(--ink)" stroke-width="6" />
-                {[0, 1, 2, 3].map((i) => (
-                  <rect x="352" y={150 + i * 16} width="156" height="6" fill="var(--paper)" />
-                ))}
-              </g>
-              {furrows.map((f) => <polygon points={f.points} fill={f.fill} />)}
-              <line x1="0" y1={HORIZON} x2="600" y2={HORIZON} stroke="var(--ink)" stroke-width="8" />
-              <g class="drone">
-                <rect x="-46" y="-46" width="92" height="92" fill="none" stroke="var(--paper)" stroke-width="5" />
-                <path d="M-70 0H-20M20 0H70M0 -70V-20M0 20V70" stroke="var(--signal)" stroke-width="5" />
-                <rect x="-8" y="-8" width="16" height="16" fill="var(--signal)" />
-              </g>
-              <rect class="scan" x="0" y={HORIZON} width="600" height="6" fill="var(--paper)" />
-            </svg>
-            <figcaption class="field-foot mono">
-              <span>37.5665°N</span><span>LAT</span><span>126.9780°E</span><span>LON</span>
-            </figcaption>
-          </figure>
-
-          <aside class="season" data-season>
-            <p class="mono label">오늘의 절기 / SOLAR TERM</p>
-            <p class="season-name">
-              <span data-term-ko>{terms[cur][0]}</span>
-              <span class="hanja" data-term-hanja>{terms[cur][1]}</span>
-            </p>
-            <p class="mono next">
-              다음 <b data-next-ko>{terms[(cur + 1) % 24][0]}</b>
-              <span data-next-date>{terms[(cur + 1) % 24][2]}/{terms[(cur + 1) % 24][3]}</span>
-            </p>
-          </aside>
-        </div>
-      </section>
-
-      <!-- ── BAND ─────────────────────────────────── -->
-      <div class="band-wrap" aria-hidden="true">
-        <div class="band">
-        <div class="band-track">
-          {[0, 1].map(() => ['SOIL', 'SENSE', 'SIGNAL', 'DECIDE', 'HARVEST'].map((t) => <span>{t} ✶</span>))}
-        </div>
-        </div>
-      </div>
-
-      <!-- ── PIPELINE ─────────────────────────────── -->
-      <section class="section container" aria-labelledby="pipe-title">
-        <header class="section-head">
-          <p class="mono label">§ 01 — PROCESS</p>
-          <h2 id="pipe-title">흙에서 결정까지</h2>
-        </header>
-        <ol class="pipeline">
-          {
-            pipeline.map((p, i) => (
-              <li>
-                <span class="pipe-no mono">0{i + 1}</span>
-                <p class="pipe-code">{p.code}</p>
-                <h3>{p.ko}</h3>
-                <p>{p.body}</p>
-              </li>
-            ))
-          }
-        </ol>
-      </section>
-
-      <!-- ── PILLARS ──────────────────────────────── -->
-      <section class="section container" aria-labelledby="pillars-title">
-        <header class="section-head">
-          <p class="mono label">§ 02 — FIELDS OF WORK</p>
-          <h2 id="pillars-title">여섯 개의 밭</h2>
-          <p class="section-sub">현대 농업을 이루는 여섯 영역. 모든 기록은 이 중 하나 이상에 심어진다.</p>
-        </header>
-        <div class="pillars">
-          {
-            pillars.map((p) => (
-              <article class={`pillar tone-${p.tone}`}>
-                <div class="pillar-top mono">
-                  <span>{p.no}</span>
-                  <span>{p.en}</span>
-                </div>
-                <h3>{p.ko}</h3>
-                <p>{p.body}</p>
-              </article>
-            ))
-          }
-        </div>
-      </section>
-
-      <!-- ── MANIFESTO ────────────────────────────── -->
-      <section class="manifesto" aria-label="선언">
-        <div class="container">
-          <p class="mono label">§ 03 — MANIFESTO</p>
-          <p class="manifesto-text">
-            기계는 농부를<br />
-            <s>대체</s> <mark>확장</mark>한다.
-          </p>
-          <ul class="manifesto-list">
-            <li><b>01</b> 감이 아니라 측정으로.</li>
-            <li><b>02</b> 화려한 데모가 아니라 현장의 결과로.</li>
-            <li><b>03</b> 더 많이가 아니라 더 정확하게.</li>
-          </ul>
-        </div>
-      </section>
-
-      <!-- ── SEASONS ──────────────────────────────── -->
-      <section class="section container" aria-labelledby="season-title">
-        <header class="section-head">
-          <p class="mono label">§ 04 — CALENDAR</p>
-          <h2 id="season-title">24절기 위의 오늘</h2>
-          <p class="section-sub">센서가 아무리 정밀해져도 농사의 리듬은 태양이 정한다.</p>
-        </header>
-        <ol class="terms" data-terms>
-          {
-            terms.map(([ko, hanja, m, d], i) => (
-              <li class:list={[{ now: i === cur }, `q${Math.floor(((i + 22) % 24) / 6)}`]}>
-                <span class="t-date mono">{m}/{d}</span>
-                <span class="t-ko">{ko}</span>
-                <span class="t-hanja">{hanja}</span>
-              </li>
-            ))
-          }
-        </ol>
-      </section>
-
-      <!-- ── FIELD NOTES ──────────────────────────── -->
-      <section class="section container" aria-labelledby="notes-title">
-        <header class="section-head row">
-          <div>
-            <p class="mono label">§ 05 — FIELD NOTES</p>
-            <h2 id="notes-title">최근 기록</h2>
-          </div>
-          <a class="btn" href="/blog">전체 기록 <span aria-hidden="true">→</span></a>
-        </header>
-        {
-          posts.length > 0 ? (
-            <ul class="notes">
-              {posts.map((post, i) => (
-                <li>
-                  <a href={`/blog/${post.id}/`}>
-                    <span class="note-no mono">#{String(i + 1).padStart(3, '0')}</span>
-                    <h3>{post.data.title}</h3>
-                    <p>{post.data.description}</p>
-                    <span class="note-date mono">
-                      <FormattedDate date={post.data.pubDate} />
-                    </span>
-                  </a>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <div class="empty">
-              <p class="empty-big">0</p>
-              <div>
-                <p class="mono label">STATUS: SEEDING</p>
-                <p class="empty-text">아직 수확한 기록이 없다. 씨앗은 이미 뿌려졌다.</p>
-              </div>
-            </div>
-          )
-        }
-      </section>
-    </main>
-
-    <Footer />
-
-    <script is:inline define:vars={{ terms }}>
-      // 방문 시점 날짜로 절기 표시를 갱신
-      const d = new Date();
-      const md = (d.getMonth() + 1) * 100 + d.getDate();
-      let idx = terms.length - 1;
-      terms.forEach((t, i) => { if (md >= t[2] * 100 + t[3]) idx = i; });
-      const next = terms[(idx + 1) % 24];
-      const set = (sel, v) => { const el = document.querySelector(sel); if (el) el.textContent = v; };
-      set('[data-term-ko]', terms[idx][0]);
-      set('[data-term-hanja]', terms[idx][1]);
-      set('[data-next-ko]', next[0]);
-      set('[data-next-date]', next[2] + '/' + next[3]);
-      document.querySelectorAll('[data-terms] li').forEach((li, i) => {
-        li.classList.toggle('now', i === idx);
-      });
-    </script>
   </body>
 </html>
 
 <style>
-  /* ── 공통 ──────────────────────────────────── */
-  .label {
-    font-size: 0.78rem;
-    font-weight: 600;
-    text-transform: uppercase;
-    margin: 0 0 0.6rem;
-  }
-  .btn {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.6rem;
-    padding: 0.9rem 1.4rem;
-    background: var(--white);
-    color: var(--ink);
-    border: var(--line) solid var(--ink);
-    box-shadow: var(--shadow);
-    font-weight: 800;
-    font-size: 1.05rem;
-    text-decoration: none;
-    transition:
-      transform 0.12s,
-      box-shadow 0.12s;
-  }
-  .btn:hover {
-    transform: translate(-3px, -3px);
-    box-shadow: 9px 9px 0 var(--ink);
-  }
-  .btn:active {
-    transform: translate(6px, 6px);
-    box-shadow: 0 0 0 var(--ink);
-  }
-  .btn-primary {
-    background: var(--chlorophyll);
-  }
-  mark {
-    background: var(--chlorophyll);
-    color: inherit;
-    padding: 0 0.08em;
-  }
-
-  /* ── 티커 ──────────────────────────────────── */
-  .ticker {
-    background: var(--ink);
-    color: var(--chlorophyll);
-    font-size: 0.78rem;
-    overflow: hidden;
-    white-space: nowrap;
-    padding: 0.45rem 0;
-  }
-  .ticker-track,
-  .band-track {
-    display: inline-flex;
-    animation: slide 40s linear infinite;
-  }
-  .ticker span {
-    padding-right: 1.6rem;
-  }
-  .ticker i {
-    font-style: normal;
-    color: var(--signal);
-    padding-left: 1.6rem;
-  }
-  @keyframes slide {
-    to {
-      transform: translateX(-50%);
-    }
-  }
-
-  /* ── 히어로 ────────────────────────────────── */
-  .hero {
-    display: grid;
-    grid-template-columns: minmax(0, 7fr) minmax(0, 5fr);
-    gap: clamp(2rem, 4vw, 4rem);
-    padding-top: clamp(2.5rem, 6vw, 5rem);
-    padding-bottom: clamp(3rem, 7vw, 6rem);
-    align-items: start;
-  }
-  .kicker {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: center;
-    gap: 0.6rem;
-    font-size: 0.8rem;
-    margin: 0 0 1.5rem;
-  }
-  .tag {
-    background: var(--ink);
-    color: var(--chlorophyll);
-    padding: 0.15rem 0.5rem;
-  }
-  h1 {
-    margin: 0;
-    font-family: var(--font-display-ko);
-    font-weight: 400;
-    font-size: clamp(3.4rem, 9vw, 8.6rem);
-    line-height: 0.92;
-    letter-spacing: -0.03em;
-  }
-  h1 .line {
-    display: block;
-    animation: rise 0.7s cubic-bezier(0.2, 0.8, 0.2, 1) both;
-  }
-  h1 .line:nth-child(2) {
-    animation-delay: 0.08s;
-    padding-left: 0.9em;
-  }
-  h1 .line:nth-child(3) {
-    animation-delay: 0.16s;
-  }
-  h1 mark {
-    box-shadow: inset 0 -0.08em 0 var(--ink);
-  }
-  @keyframes rise {
-    from {
-      opacity: 0;
-      transform: translateY(0.4em);
-    }
-  }
-  .lead {
-    margin: 2rem 0 2.25rem;
-    max-width: 34em;
-    font-size: clamp(1.05rem, 1.4vw, 1.2rem);
-    font-weight: 500;
-    padding-left: 1rem;
-    border-left: var(--line-thick) solid var(--ink);
-  }
-  .cta {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 1rem;
-  }
-
-  .hero-visual {
-    display: grid;
-    gap: 1.25rem;
-  }
-  .field {
-    margin: 0;
-    background: var(--ink);
-    border: var(--line-thick) solid var(--ink);
-    box-shadow: var(--shadow-lg);
-    position: relative;
-  }
-  .field svg {
-    display: block;
-    width: 100%;
-    aspect-ratio: 1;
-  }
-  .field-meta,
-  .field-foot {
-    display: flex;
-    justify-content: space-between;
-    background: var(--ink);
-    color: var(--paper);
-    font-size: 0.72rem;
-    padding: 0.4rem 0.7rem;
-  }
-  .blink {
-    color: var(--signal);
-    animation: blink 1.2s steps(2) infinite;
-  }
-  @keyframes blink {
-    50% {
-      opacity: 0;
-    }
-  }
-  .drone {
-    animation: patrol 9s ease-in-out infinite;
-  }
-  @keyframes patrol {
-    0% {
-      transform: translate(120px, 470px);
-    }
-    25% {
-      transform: translate(260px, 360px);
-    }
-    50% {
-      transform: translate(470px, 450px);
-    }
-    75% {
-      transform: translate(330px, 530px);
-    }
-    100% {
-      transform: translate(120px, 470px);
-    }
-  }
-  .scan {
-    opacity: 0.85;
-    animation: scan 3.2s linear infinite;
-  }
-  @keyframes scan {
-    from {
-      transform: translateY(0);
-    }
-    to {
-      transform: translateY(344px);
-    }
-  }
-
-  .season {
-    background: var(--white);
-    border: var(--line) solid var(--ink);
-    box-shadow: var(--shadow);
-    padding: 1rem 1.25rem;
-  }
-  .season-name {
-    margin: 0;
-    display: flex;
-    align-items: baseline;
-    gap: 0.75rem;
-    font-family: var(--font-display-ko);
-    font-size: clamp(2.4rem, 4vw, 3.4rem);
-    line-height: 1;
-  }
-  .hanja {
-    font-family: serif;
-    font-size: 0.5em;
-    color: var(--muted);
-  }
-  .next {
-    margin: 0.75rem 0 0;
-    font-size: 0.85rem;
-    border-top: 2px dashed var(--ink);
-    padding-top: 0.6rem;
-  }
-  .next b {
-    background: var(--chlorophyll);
-    padding: 0 0.3rem;
-    margin: 0 0.3rem;
-  }
-
-  /* ── 밴드 ──────────────────────────────────── */
-  .band {
-    background: var(--chlorophyll);
-    border-block: var(--line-thick) solid var(--ink);
-    overflow: hidden;
-    white-space: nowrap;
-    transform: rotate(-2deg) scale(1.04);
-  }
-  .band-wrap {
-    overflow: hidden;
-    padding: 2.5rem 0;
-    margin-bottom: 1rem;
-  }
-  .band-track {
-    animation-duration: 22s;
-    animation-direction: reverse;
-  }
-  .band span {
-    font-family: var(--font-display);
-    font-size: clamp(2.2rem, 6vw, 4.6rem);
-    line-height: 1.15;
-    padding-right: 2rem;
-    letter-spacing: -0.02em;
-  }
-
-  /* ── 섹션 ──────────────────────────────────── */
-  .section {
-    padding-top: clamp(3rem, 7vw, 6rem);
-    padding-bottom: clamp(1rem, 3vw, 2rem);
-  }
-  .section-head {
-    margin-bottom: 2.5rem;
-    border-bottom: var(--line-thick) solid var(--ink);
-    padding-bottom: 1.25rem;
-  }
-  .section-head.row {
-    display: flex;
-    flex-wrap: wrap;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: 1rem;
-  }
-  .section-head h2 {
-    margin: 0;
-    font-family: var(--font-display-ko);
-    font-weight: 400;
-    font-size: clamp(2.4rem, 6vw, 5rem);
-    line-height: 1;
-    letter-spacing: -0.02em;
-  }
-  .section-sub {
-    margin: 1rem 0 0;
-    max-width: 40em;
-    font-weight: 500;
-  }
-
-  /* ── 파이프라인 ────────────────────────────── */
-  .pipeline {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(4, minmax(0, 1fr));
-    border: var(--line-thick) solid var(--ink);
-    background: var(--white);
-  }
-  .pipeline li {
-    position: relative;
-    padding: 1.5rem 1.5rem 2rem;
-    border-right: var(--line-thick) solid var(--ink);
-    transition: background 0.15s;
-  }
-  .pipeline li:last-child {
-    border-right: 0;
-  }
-  .pipeline li:not(:last-child)::after {
-    content: '→';
-    position: absolute;
-    right: -1.15rem;
-    top: 1.4rem;
-    z-index: 1;
-    width: 2rem;
-    height: 2rem;
-    display: grid;
-    place-items: center;
-    background: var(--signal);
-    border: var(--line) solid var(--ink);
-    font-weight: 900;
-  }
-  .pipeline li:hover {
-    background: var(--chlorophyll);
-  }
-  .pipe-no {
-    font-size: 0.8rem;
-  }
-  .pipe-code {
-    margin: 0.5rem 0 0;
-    font-family: var(--font-display);
-    font-size: clamp(1.6rem, 2.6vw, 2.4rem);
-    line-height: 1;
-    letter-spacing: -0.03em;
-  }
-  .pipeline h3 {
-    margin: 0.3rem 0 0.8rem;
-    font-size: 1.1rem;
-  }
-  .pipeline p:last-child {
-    margin: 0;
-    font-size: 0.95rem;
-  }
-
-  /* ── 여섯 개의 밭 ──────────────────────────── */
-  .pillars {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 1.5rem;
-  }
-  .pillar {
-    border: var(--line-thick) solid var(--ink);
-    box-shadow: var(--shadow);
-    padding: 1.25rem 1.4rem 1.6rem;
-    min-height: 260px;
+  .screen {
+    min-height: 100vh;
+    min-height: 100svh;
     display: flex;
     flex-direction: column;
-    transition:
-      transform 0.15s,
-      box-shadow 0.15s;
-  }
-  .pillar:hover {
-    transform: translate(-4px, -4px) rotate(-0.6deg);
-    box-shadow: var(--shadow-lg);
-  }
-  .pillar-top {
-    display: flex;
-    justify-content: space-between;
-    font-size: 0.78rem;
-    font-weight: 600;
-    padding-bottom: 0.6rem;
-    border-bottom: var(--line) solid var(--ink);
-  }
-  .pillar h3 {
-    margin: auto 0 0.5rem;
-    padding-top: 2.5rem;
-    font-family: var(--font-display-ko);
-    font-weight: 400;
-    font-size: clamp(2rem, 3.4vw, 2.9rem);
-    line-height: 1;
-  }
-  .pillar p {
-    margin: 0;
-    font-weight: 500;
-  }
-  .tone-chlorophyll {
-    background: var(--chlorophyll);
-  }
-  .tone-white {
-    background: var(--white);
-  }
-  .tone-sky {
-    background: var(--sky);
-  }
-  .tone-signal {
-    background: var(--signal);
-  }
-  .tone-paper {
-    background: var(--paper-2);
-  }
-
-  /* ── 선언 ──────────────────────────────────── */
-  .manifesto {
-    margin-top: clamp(4rem, 8vw, 7rem);
-    background: var(--ink);
-    color: var(--paper);
-    padding: clamp(3rem, 8vw, 7rem) 0;
-    border-block: var(--line-thick) solid var(--ink);
-  }
-  .manifesto .label {
-    color: var(--chlorophyll);
-  }
-  .manifesto-text {
-    margin: 1rem 0 3rem;
-    font-family: var(--font-display-ko);
-    font-size: clamp(3rem, 10vw, 9rem);
-    line-height: 1;
-    letter-spacing: -0.03em;
-  }
-  .manifesto-text s {
-    color: #6f6f6a;
-    text-decoration-color: var(--signal);
-    text-decoration-thickness: 0.1em;
-  }
-  .manifesto-text mark {
-    color: var(--ink);
-  }
-  .manifesto-list {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-    border-top: var(--line) solid var(--paper);
-  }
-  .manifesto-list li {
-    padding: 1rem 1rem 0 0;
-    font-size: 1.05rem;
-    font-weight: 600;
-  }
-  .manifesto-list b {
-    font-family: var(--font-mono);
-    color: var(--chlorophyll);
-    margin-right: 0.5rem;
-  }
-
-  /* ── 24절기 ────────────────────────────────── */
-  .terms {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(12, minmax(0, 1fr));
-    border: var(--line-thick) solid var(--ink);
-    background: var(--ink);
-    gap: var(--line);
-  }
-  .terms li {
-    display: flex;
-    flex-direction: column;
-    gap: 0.2rem;
-    padding: 0.7rem 0.5rem;
-    min-height: 92px;
-  }
-  .terms .q0 {
-    background: #e9f7c4;
-  }
-  .terms .q1 {
-    background: #fff1b8;
-  }
-  .terms .q2 {
-    background: #ffd9c7;
-  }
-  .terms .q3 {
-    background: #e2edf5;
-  }
-  .t-date {
-    font-size: 0.68rem;
-  }
-  .t-ko {
-    font-weight: 900;
-    font-size: 1.05rem;
-  }
-  .t-hanja {
-    font-family: serif;
-    font-size: 0.78rem;
-    color: var(--muted);
-  }
-  .terms li.now {
-    background: var(--ink);
-    color: var(--chlorophyll);
-    outline: var(--line-thick) solid var(--signal);
-    outline-offset: -2px;
-    position: relative;
-  }
-  .terms li.now .t-hanja {
-    color: var(--paper);
-  }
-  .terms li.now::after {
-    content: 'NOW';
-    position: absolute;
-    top: -0.9rem;
-    right: 0.3rem;
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    background: var(--signal);
-    color: var(--ink);
-    padding: 0.05rem 0.35rem;
-    border: 2px solid var(--ink);
-  }
-
-  /* ── 최근 기록 ─────────────────────────────── */
-  .notes {
-    list-style: none;
-    margin: 0;
-    padding: 0;
-    display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-    gap: 1.5rem;
-  }
-  .notes a {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
-    padding: 1.25rem;
-    background: var(--white);
-    border: var(--line) solid var(--ink);
-    box-shadow: var(--shadow);
-    color: var(--ink);
-    text-decoration: none;
-    transition:
-      transform 0.12s,
-      box-shadow 0.12s,
-      background 0.12s;
-  }
-  .notes a:hover {
-    background: var(--chlorophyll);
-    transform: translate(-3px, -3px);
-    box-shadow: 9px 9px 0 var(--ink);
-  }
-  .note-no,
-  .note-date {
-    font-size: 0.75rem;
-  }
-  .notes h3 {
-    margin: 0.6rem 0 0.5rem;
-    font-size: 1.3rem;
-    line-height: 1.3;
-  }
-  .notes p {
-    margin: 0 0 1rem;
-    flex: 1;
-  }
-  .empty {
-    display: flex;
-    align-items: center;
-    gap: 2rem;
-    padding: 1.5rem 2rem;
-    border: var(--line-thick) solid var(--ink);
-    background: repeating-linear-gradient(
-      -45deg,
-      var(--chlorophyll) 0 18px,
-      var(--paper) 18px 36px
-    );
-  }
-  .empty > div {
-    background: var(--white);
-    border: var(--line) solid var(--ink);
-    padding: 1rem 1.25rem;
-  }
-  .empty-big {
-    margin: 0;
-    font-family: var(--font-display);
-    font-size: clamp(5rem, 14vw, 10rem);
-    line-height: 0.8;
-    -webkit-text-stroke: 4px var(--ink);
-    color: var(--white);
-  }
-  .empty-text {
-    margin: 0;
-    font-weight: 700;
-    font-size: 1.15rem;
   }
   main {
-    padding-bottom: clamp(4rem, 8vw, 7rem);
+    flex: 1;
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: clamp(2rem, 6vh, 4rem) var(--gutter);
   }
-
-  /* ── 반응형 ────────────────────────────────── */
-  @media (max-width: 960px) {
-    .hero {
-      grid-template-columns: 1fr;
-    }
-    .hero-visual {
-      grid-template-columns: minmax(0, 3fr) minmax(0, 2fr);
-      align-items: start;
-    }
-    .pipeline {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .pipeline li:nth-child(2) {
-      border-right: 0;
-    }
-    .pipeline li:nth-child(-n + 2) {
-      border-bottom: var(--line-thick) solid var(--ink);
-    }
-    .pipeline li:nth-child(2)::after {
-      display: none;
-    }
-    .pillars {
-      grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-    .terms {
-      grid-template-columns: repeat(6, minmax(0, 1fr));
+  .words {
+    max-width: 14em;
+    font-size: clamp(2.6rem, 7.2vw, 7rem);
+    line-height: 1.2;
+    letter-spacing: -0.03em;
+    text-align: center;
+  }
+  .word {
+    position: relative;
+    z-index: 1;
+    white-space: nowrap;
+  }
+  sup {
+    font-size: 0.32em;
+    vertical-align: 1.6em;
+    margin-left: 0.04em;
+    letter-spacing: 0;
+  }
+  /* 단어에 올리면 뒤편에 대표 이미지가 떠오름 */
+  .peek {
+    display: none;
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    width: min(32vw, 420px);
+    transform: translate(-50%, -50%);
+    z-index: 0;
+    pointer-events: none;
+  }
+  @media (hover: hover) {
+    .word:hover + .peek {
+      display: block;
     }
   }
-  @media (max-width: 600px) {
-    .hero-visual {
-      grid-template-columns: 1fr;
-    }
-    .field {
-      box-shadow: var(--shadow);
-    }
-    .pipeline {
-      grid-template-columns: 1fr;
-    }
-    .pipeline li {
-      border-right: 0;
-      border-bottom: var(--line-thick) solid var(--ink);
-    }
-    .pipeline li:last-child {
-      border-bottom: 0;
-    }
-    .pipeline li:not(:last-child)::after {
-      display: grid;
-      content: '↓';
-      right: 1rem;
-      top: auto;
-      bottom: -1.15rem;
-    }
-    .pillars {
-      grid-template-columns: 1fr;
-    }
-    .pillar {
-      min-height: 0;
-    }
-    .terms {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
-    .empty {
-      flex-direction: column;
-      align-items: flex-start;
-      padding: 1.25rem;
-    }
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
   }
 </style>

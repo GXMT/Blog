@@ -3,66 +3,112 @@ import { getCollection } from 'astro:content';
 import BaseHead from '../../components/BaseHead.astro';
 import Header from '../../components/Header.astro';
 import Footer from '../../components/Footer.astro';
-import FormattedDate from '../../components/FormattedDate.astro';
 import { SITE_TITLE } from '../../consts.mjs';
 import '../../styles/global.css';
 
 const posts = (await getCollection('blog', ({ data }) => !data.draft)).sort(
   (a, b) => b.data.pubDate.valueOf() - a.data.pubDate.valueOf(),
 );
+const ymd = (d: Date) => d.toISOString().slice(0, 10).replaceAll('-', '.');
 ---
 
 <!doctype html>
 <html lang="ko">
   <head>
-    <BaseHead title={`none · ${SITE_TITLE}`} description="none" />
+    <BaseHead title={`기록 · ${SITE_TITLE}`} description="현대 농업의 기술과 현장에 관한 기록 목록." />
   </head>
   <body>
     <Header />
-    <main class="container page">
-        <h1 class="page-title">none ({posts.length})</h1>
-        <ul class="post-list">
-          {
-            posts.map((post) => (
-              <li>
-                <a href={`/blog/${post.id}/`}>{post.data.title}</a>
-                <FormattedDate date={post.data.pubDate} />
-              </li>
-            ))
-          }
-        </ul>
-      </main>
+    <main class="container">
+      <h1 class="sr-only">기록</h1>
+      <ol class="rows">
+        {
+          posts.map((post) => (
+            <li>
+              <a href={`/blog/${post.id}/`}>
+                <span class="title">{post.data.title}</span>
+                <span class="desc">{post.data.description}</span>
+                <span class="meta">
+                  <time datetime={post.data.pubDate.toISOString()}>{ymd(post.data.pubDate)}</time>
+                  <span class="tags">{post.data.tags.join(', ')}</span>
+                </span>
+                {post.data.heroImage && (
+                  <img class="thumb" src={post.data.heroImage} alt="" loading="lazy" />
+                )}
+              </a>
+            </li>
+          ))
+        }
+      </ol>
+    </main>
     <Footer />
   </body>
 </html>
 
 <style>
-  .page-title {
-    font-size: 1.4rem;
-    margin-bottom: 1.5rem;
-  }
-  .post-list {
+  .rows {
     list-style: none;
-    padding: 0;
     margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--rule);
   }
-  .post-list li {
+  .rows li {
+    border-bottom: 1px solid var(--rule);
+  }
+  .rows a {
+    display: grid;
+    grid-template-columns: minmax(0, 3fr) minmax(0, 4fr) minmax(0, 2fr) 120px;
+    gap: 1.5rem;
+    align-items: start;
+    padding: 1.1rem 0 3.5rem;
+    font-size: 1rem;
+    line-height: 1.45;
+  }
+  .title {
+    font-weight: 500;
+  }
+  .meta {
     display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    padding: 0.9rem 0;
-    border-bottom: 1px solid var(--border, #e5e5e5);
+    flex-direction: column;
+    color: var(--muted);
   }
-  .post-list a {
-    text-decoration: none;
+  .rows a:hover .title {
+    color: var(--accent);
+  }
+  .thumb {
+    width: 120px;
+    justify-self: end;
+    filter: grayscale(1);
+    transition: filter 0.2s;
+  }
+  .rows a:hover .thumb {
+    filter: none;
+  }
+  .rows a:hover {
     color: inherit;
   }
-  .post-list a:hover {
-    color: var(--accent, #2563eb);
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
   }
-  .post-list time {
-    color: var(--muted, #999);
-    font-size: 0.85rem;
-    white-space: nowrap;
+  @media (max-width: 760px) {
+    .rows a {
+      grid-template-columns: minmax(0, 1fr) 84px;
+      gap: 0.4rem 1rem;
+      padding-bottom: 1.5rem;
+    }
+    .title,
+    .desc,
+    .meta {
+      grid-column: 1;
+    }
+    .thumb {
+      grid-column: 2;
+      grid-row: 1 / span 3;
+      width: 84px;
+    }
   }
 </style>

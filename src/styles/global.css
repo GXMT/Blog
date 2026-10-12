@@ -1,37 +1,17 @@
 /* ─────────────────────────────────────────────────────────────
-   XPFARMS — 브루탈리즘 디자인 토큰
-   두꺼운 검정 선, 밀린 그림자, 날것의 콘크리트 바탕, 엽록소 형광색.
+   XPFARMS — 흰 바탕, 검정 그로테스크, 노랑 하이라이트.
    ───────────────────────────────────────────────────────────── */
 :root {
-  --ink: #0a0a0a;
-  --paper: #ecebe4; /* 콘크리트 */
-  --paper-2: #e0ded3;
-  --chlorophyll: #c8ff00; /* 형광 엽록소 */
-  --signal: #ff4b1f; /* 경고 주황 */
-  --soil: #5b3a1e;
-  --sky: #9fd6ff;
-  --white: #ffffff;
+  --fg: #000000;
+  --bg: #ffffff;
+  --muted: #8a8a8a;
+  --rule: #d9d9d9;
+  --accent: #ffca29;
 
-  --fg: var(--ink);
-  --muted: #4a4a45;
-  --border: var(--ink);
-  --surface: var(--paper-2);
-  --accent: var(--ink);
-  --bg: var(--paper);
+  --font: 'Pretendard Variable', Pretendard, 'Helvetica Neue', Helvetica, Arial,
+    'Malgun Gothic', sans-serif;
 
-  --line: 3px;
-  --line-thick: 5px;
-  --shadow: 6px 6px 0 var(--ink);
-  --shadow-lg: 12px 12px 0 var(--ink);
-
-  --font-body: 'Pretendard Variable', Pretendard, system-ui, -apple-system,
-    'Segoe UI', 'Malgun Gothic', sans-serif;
-  --font-display: 'Archivo Black', 'Black Han Sans', var(--font-body);
-  --font-display-ko: 'Black Han Sans', 'Archivo Black', var(--font-body);
-  --font-mono: 'IBM Plex Mono', 'Pretendard Variable', Pretendard, ui-monospace, monospace;
-
-  --max-width: 1360px;
-  --gutter: clamp(16px, 3vw, 40px);
+  --gutter: clamp(16px, 2.5vw, 32px);
 }
 
 *,
@@ -46,40 +26,32 @@ html {
 
 body {
   margin: 0;
-  background-color: var(--bg);
-  /* 측량 모눈 */
-  background-image:
-    linear-gradient(rgba(10, 10, 10, 0.06) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(10, 10, 10, 0.06) 1px, transparent 1px);
-  background-size: 32px 32px;
+  background: var(--bg);
   color: var(--fg);
-  font-family: var(--font-body);
-  line-height: 1.7;
+  font-family: var(--font);
   font-size: 17px;
+  line-height: 1.6;
+  letter-spacing: -0.01em;
   word-break: keep-all;
-  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
 }
 
 ::selection {
-  background: var(--chlorophyll);
-  color: var(--ink);
-}
-
-:focus-visible {
-  outline: var(--line) solid var(--signal);
-  outline-offset: 3px;
-}
-
-.container {
-  max-width: var(--max-width);
-  margin: 0 auto;
-  padding: 0 var(--gutter);
+  background: var(--accent);
 }
 
 a {
-  color: var(--ink);
-  text-decoration-thickness: 2px;
-  text-underline-offset: 3px;
+  color: inherit;
+  text-decoration: none;
+}
+
+a:hover {
+  color: var(--accent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 2px;
 }
 
 img {
@@ -87,48 +59,63 @@ img {
   height: auto;
 }
 
-.mono {
-  font-family: var(--font-mono);
-  letter-spacing: 0.02em;
-}
-
-.sr-only {
-  position: absolute;
-  width: 1px;
-  height: 1px;
-  overflow: hidden;
-  clip: rect(0 0 0 0);
-  white-space: nowrap;
+.container {
+  padding: 0 var(--gutter);
 }
 
 /* 본문 타이포그래피 */
 .prose {
-  max-width: 720px;
+  max-width: 680px;
+  font-size: 1.06rem;
+  line-height: 1.85;
 }
 .prose h2 {
-  margin-top: 2.5rem;
+  margin: 3rem 0 1rem;
+  font-size: 1.5rem;
+  font-weight: 500;
   line-height: 1.3;
+  letter-spacing: -0.02em;
 }
 .prose h3 {
-  margin-top: 2rem;
+  margin: 2rem 0 0.75rem;
+  font-size: 1.15rem;
+  font-weight: 600;
 }
 .prose p,
 .prose ul,
 .prose ol {
   margin: 1rem 0;
 }
+.prose a {
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 1.5rem 0;
+  font-size: 0.95rem;
+}
+.prose th,
+.prose td {
+  text-align: left;
+  vertical-align: top;
+  padding: 0.6rem 0.75rem 0.6rem 0;
+  border-bottom: 1px solid var(--rule);
+}
+.prose th {
+  font-weight: 500;
+  color: var(--muted);
+}
 .prose pre {
-  background: var(--ink);
-  color: var(--chlorophyll);
+  background: #f4f4f4;
   padding: 1rem;
-  border: var(--line) solid var(--ink);
   overflow-x: auto;
   font-size: 0.9em;
 }
 .prose code {
-  font-family: var(--font-mono);
-  background: var(--chlorophyll);
-  padding: 0.1em 0.35em;
+  background: #f4f4f4;
+  padding: 0.1em 0.3em;
   font-size: 0.9em;
 }
 .prose pre code {
@@ -136,10 +123,9 @@ img {
   padding: 0;
 }
 .prose blockquote {
-  border-left: var(--line-thick) solid var(--ink);
-  background: var(--white);
   margin: 1.5rem 0;
-  padding: 0.75rem 1rem;
+  padding-left: 1rem;
+  border-left: 2px solid var(--fg);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -149,15 +135,4 @@ img {
     animation: none !important;
     transition: none !important;
   }
-}
-
-/* 일반 페이지 본문 여백 */
-.page {
-  padding-top: clamp(2rem, 5vw, 4rem);
-  padding-bottom: clamp(4rem, 8vw, 7rem);
-}
-
-/* 고정 헤더에 가려지지 않도록 앵커 오프셋 */
-[id] {
-  scroll-margin-top: 90px;
 }
