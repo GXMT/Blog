@@ -5,10 +5,10 @@
 /** 실제 배포 도메인 (끝에 슬래시 X). sitemap/RSS/canonical/OG에 사용 */
 export const SITE_URL = 'https://xpfarms.com';
 
-export const SITE_TITLE = 'none';
-export const SITE_DESCRIPTION = 'none';
-export const AUTHOR = 'none';
-export const LOCALE = 'en_US';
+export const SITE_TITLE = 'XPFARMS';
+export const SITE_DESCRIPTION = '흙과 데이터 사이. 스마트팜, 정밀농업, 수직농장, 농업로봇까지 현대 농업의 기술과 현장을 기록합니다.';
+export const AUTHOR = 'XPFARMS';
+export const LOCALE = 'ko_KR';
 
 /**
  * 애드센스 게시자 ID. 예: 'ca-pub-1234567890123456'

@@ -4,7 +4,7 @@ interface Props {
 }
 const { date } = Astro.props;
 const iso = date.toISOString();
-const label = date.toLocaleDateString('en-US', {
+const label = date.toLocaleDateString('ko-KR', {
   year: 'numeric',
   month: 'long',
   day: 'numeric',

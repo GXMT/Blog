@@ -32,7 +32,7 @@ const hasFacts = farmType || mcVersion || rate || difficulty;
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <BaseHead
       title={title}
@@ -44,9 +44,8 @@ const hasFacts = farmType || mcVersion || rate || difficulty;
     />
   </head>
   <body>
-    <div class="container">
-      <Header />
-      <main>
+    <Header />
+    <main class="container page">
         <article>
           <header class="post-header">
             <h1>{title}</h1>
@@ -150,8 +149,7 @@ const hasFacts = farmType || mcVersion || rate || difficulty;
         <!-- 본문 하단 광고 (슬롯 ID는 애드센스에서 발급받아 교체) -->
         <AdSense slot="0000000000" minHeight={280} />
       </main>
-      <Footer />
-    </div>
+    <Footer />
   </body>
 </html>
 

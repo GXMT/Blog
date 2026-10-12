@@ -1,23 +1,98 @@
 ---
-import { SITE_TITLE, AUTHOR } from '../consts.mjs';
+import { SITE_TITLE } from '../consts.mjs';
 const year = new Date().getFullYear();
 ---
 
 <footer class="site-footer">
-  <p>© {year} {SITE_TITLE} · {AUTHOR}</p>
-  <p><a href="/rss.xml">RSS</a> · <a href="/sitemap-index.xml">Sitemap</a></p>
+  <div class="cols container">
+    <div>
+      <p class="label mono">// 색인</p>
+      <ul>
+        <li><a href="/">홈</a></li>
+        <li><a href="/blog">기록</a></li>
+        <li><a href="/about">소개</a></li>
+      </ul>
+    </div>
+    <div>
+      <p class="label mono">// 구독</p>
+      <ul>
+        <li><a href="/rss.xml">RSS 피드</a></li>
+        <li><a href="/sitemap-index.xml">사이트맵</a></li>
+      </ul>
+    </div>
+    <div class="note">
+      <p class="label mono">// 원칙</p>
+      <p>흙을 존중하고, 숫자로 증명하고, 현장에서 확인한다.</p>
+    </div>
+  </div>
+  <p class="wordmark" aria-hidden="true">{SITE_TITLE}</p>
+  <div class="base mono container">
+    <span>© {year} {SITE_TITLE}</span>
+    <span>재배 중 · 데이터 수집 중</span>
+  </div>
 </footer>
 
 <style>
   .site-footer {
-    margin-top: 4rem;
-    padding: 2rem 0;
-    border-top: 1px solid var(--border, #e5e5e5);
-    color: var(--muted, #666);
-    font-size: 0.9rem;
-    text-align: center;
+    margin-top: 0;
+    background: var(--ink);
+    color: var(--paper);
+    border-top: var(--line-thick) solid var(--ink);
+    overflow: hidden;
   }
-  .site-footer a {
-    color: var(--muted, #666);
+  .cols {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 2rem;
+    padding-top: 3rem;
+    padding-bottom: 2rem;
+  }
+  .label {
+    color: var(--chlorophyll);
+    font-size: 0.8rem;
+    margin: 0 0 0.75rem;
+  }
+  ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.3rem;
+  }
+  a {
+    color: var(--paper);
+    text-decoration: none;
+    font-weight: 700;
+  }
+  a:hover {
+    color: var(--ink);
+    background: var(--chlorophyll);
+  }
+  .note p:last-child {
+    margin: 0;
+    font-size: 1.05rem;
+    max-width: 22em;
+  }
+  .wordmark {
+    margin: 0;
+    font-family: var(--font-display);
+    font-size: 19vw;
+    line-height: 0.78;
+    letter-spacing: -0.06em;
+    color: var(--chlorophyll);
+    white-space: nowrap;
+    text-align: center;
+    transform: translateY(0.06em);
+  }
+  .base {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.5rem;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+    font-size: 0.75rem;
+    border-top: var(--line) solid var(--chlorophyll);
+    max-width: none;
   }
 </style>

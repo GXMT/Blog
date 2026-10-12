@@ -1,25 +1,42 @@
+/* ─────────────────────────────────────────────────────────────
+   XPFARMS — 브루탈리즘 디자인 토큰
+   두꺼운 검정 선, 밀린 그림자, 날것의 콘크리트 바탕, 엽록소 형광색.
+   ───────────────────────────────────────────────────────────── */
 :root {
-  --fg: #18181b;
-  --muted: #6b7280;
-  --border: #e5e7eb;
-  --surface: #f4f4f5;
-  --accent: #2563eb;
-  --bg: #ffffff;
-  --max-width: 720px;
+  --ink: #0a0a0a;
+  --paper: #ecebe4; /* 콘크리트 */
+  --paper-2: #e0ded3;
+  --chlorophyll: #c8ff00; /* 형광 엽록소 */
+  --signal: #ff4b1f; /* 경고 주황 */
+  --soil: #5b3a1e;
+  --sky: #9fd6ff;
+  --white: #ffffff;
+
+  --fg: var(--ink);
+  --muted: #4a4a45;
+  --border: var(--ink);
+  --surface: var(--paper-2);
+  --accent: var(--ink);
+  --bg: var(--paper);
+
+  --line: 3px;
+  --line-thick: 5px;
+  --shadow: 6px 6px 0 var(--ink);
+  --shadow-lg: 12px 12px 0 var(--ink);
+
+  --font-body: 'Pretendard Variable', Pretendard, system-ui, -apple-system,
+    'Segoe UI', 'Malgun Gothic', sans-serif;
+  --font-display: 'Archivo Black', 'Black Han Sans', var(--font-body);
+  --font-display-ko: 'Black Han Sans', 'Archivo Black', var(--font-body);
+  --font-mono: 'IBM Plex Mono', 'Pretendard Variable', Pretendard, ui-monospace, monospace;
+
+  --max-width: 1360px;
+  --gutter: clamp(16px, 3vw, 40px);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --fg: #e5e7eb;
-    --muted: #9ca3af;
-    --border: #27272a;
-    --surface: #18181b;
-    --accent: #60a5fa;
-    --bg: #0b0b0d;
-  }
-}
-
-* {
+*,
+*::before,
+*::after {
   box-sizing: border-box;
 }
 
@@ -29,23 +46,40 @@ html {
 
 body {
   margin: 0;
-  background: var(--bg);
+  background-color: var(--bg);
+  /* 측량 모눈 */
+  background-image:
+    linear-gradient(rgba(10, 10, 10, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(10, 10, 10, 0.06) 1px, transparent 1px);
+  background-size: 32px 32px;
   color: var(--fg);
-  font-family:
-    'Pretendard', system-ui, -apple-system, 'Segoe UI', 'Malgun Gothic',
-    sans-serif;
+  font-family: var(--font-body);
   line-height: 1.7;
   font-size: 17px;
+  word-break: keep-all;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: var(--chlorophyll);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: var(--line) solid var(--signal);
+  outline-offset: 3px;
 }
 
 .container {
   max-width: var(--max-width);
   margin: 0 auto;
-  padding: 0 1.25rem 2rem;
+  padding: 0 var(--gutter);
 }
 
 a {
-  color: var(--accent);
+  color: var(--ink);
+  text-decoration-thickness: 2px;
+  text-underline-offset: 3px;
 }
 
 img {
@@ -53,7 +87,24 @@ img {
   height: auto;
 }
 
+.mono {
+  font-family: var(--font-mono);
+  letter-spacing: 0.02em;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
 /* 본문 타이포그래피 */
+.prose {
+  max-width: 720px;
+}
 .prose h2 {
   margin-top: 2.5rem;
   line-height: 1.3;
@@ -67,16 +118,17 @@ img {
   margin: 1rem 0;
 }
 .prose pre {
-  background: var(--surface);
+  background: var(--ink);
+  color: var(--chlorophyll);
   padding: 1rem;
-  border-radius: 8px;
+  border: var(--line) solid var(--ink);
   overflow-x: auto;
   font-size: 0.9em;
 }
 .prose code {
-  background: var(--surface);
-  padding: 0.15em 0.4em;
-  border-radius: 4px;
+  font-family: var(--font-mono);
+  background: var(--chlorophyll);
+  padding: 0.1em 0.35em;
   font-size: 0.9em;
 }
 .prose pre code {
@@ -84,8 +136,28 @@ img {
   padding: 0;
 }
 .prose blockquote {
-  border-left: 3px solid var(--accent);
+  border-left: var(--line-thick) solid var(--ink);
+  background: var(--white);
   margin: 1.5rem 0;
-  padding: 0.25rem 0 0.25rem 1rem;
-  color: var(--muted);
+  padding: 0.75rem 1rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation: none !important;
+    transition: none !important;
+  }
+}
+
+/* 일반 페이지 본문 여백 */
+.page {
+  padding-top: clamp(2rem, 5vw, 4rem);
+  padding-bottom: clamp(4rem, 8vw, 7rem);
+}
+
+/* 고정 헤더에 가려지지 않도록 앵커 오프셋 */
+[id] {
+  scroll-margin-top: 90px;
 }
