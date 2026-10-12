@@ -5,10 +5,9 @@
 /** 실제 배포 도메인 (끝에 슬래시 X). sitemap/RSS/canonical/OG에 사용 */
 export const SITE_URL = 'https://xpfarms.com';
 
-export const SITE_TITLE = 'XPFarms';
-export const SITE_DESCRIPTION =
-  "Interactive 3D guides to Minecraft's best XP, mob, and resource farms — rotate, zoom, and build them layer by layer.";
-export const AUTHOR = 'XPFarms';
+export const SITE_TITLE = 'none';
+export const SITE_DESCRIPTION = 'none';
+export const AUTHOR = 'none';
 export const LOCALE = 'en_US';
 
 /**
